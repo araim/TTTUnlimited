@@ -104,6 +104,15 @@ public class GameControllerTest extends AndroidTestCase {
 
 			assertEquals(1, goc.wins);
 			assertEquals(8, goc.changes);
+			assertEquals(true,goc.moves.contains(new Move(0,0,XO.X)));
+			assertEquals(true,goc.moves.contains(new Move(1,0,XO.X)));
+			assertEquals(true,goc.moves.contains(new Move(2,0,XO.X)));
+			assertEquals(true,goc.moves.contains(new Move(3,0,XO.X)));
+			assertEquals(true,goc.moves.contains(new Move(4,0,XO.X)));
+			assertEquals(true,goc.moves.contains(new Move(-1,0,XO.O)));
+			assertEquals(true,goc.moves.contains(new Move(-1,1,XO.O)));
+			assertEquals(true,goc.moves.contains(new Move(-1,2,XO.O)));
+			assertEquals(true,goc.moves.contains(new Move(-1,3,XO.O)));
 			assertEquals(9, goc.moves.size());
 
 		} catch (IllegalArgumentException iae) {
