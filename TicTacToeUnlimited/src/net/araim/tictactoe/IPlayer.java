@@ -1,8 +1,9 @@
 package net.araim.tictactoe;
 
 import android.graphics.Point;
+import android.os.Parcelable;
 
-public interface IPlayer {
+public interface IPlayer extends Parcelable{
 
 	public XO getXO();
 	

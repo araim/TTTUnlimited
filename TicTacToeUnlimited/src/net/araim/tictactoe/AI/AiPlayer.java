@@ -1,12 +1,14 @@
 package net.araim.tictactoe.AI;
 
-import android.graphics.Point;
 import net.araim.tictactoe.IGameInterface;
-import net.araim.tictactoe.IPlayer;
+import net.araim.tictactoe.Player;
 import net.araim.tictactoe.XO;
+import android.graphics.Point;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class AiPlayer implements IPlayer {
-//	private static final String TAG = "AiPlayer";
+public class AiPlayer extends Player {
+	private static final String TAG = "TTT.AiPlayer";
 
 	// private IMoveObserver observer;
 	// private XO playersXO;
@@ -15,41 +17,44 @@ public class AiPlayer implements IPlayer {
 	// LogState(info, null);
 	// }
 
-//	private void LogState(String info, List<Chain> chains) {
-//		StringBuffer sb = new StringBuffer();
-//		// if (chains == null) {
-//		// sb.append("Player state (" + info + "): \nPromising Chains: ");
-//		// for (Chain c : promisingChains) {
-//		// sb.append("\n" + c);
-//		// }
-//		// sb.append("\nOponent chains: ");
-//		// for (Chain c : oponentChains) {
-//		// sb.append("\n" + c);
-//		// }
-//		// sb.append("\n\n");
-//		// } else
-//		sb.append("Pointvals:\n");
-//		for (Point p : vpoints.keySet()) {
-//			if (vpoints.get(p) > 5) {
-//				sb.append(p + " => " + vpoints.get(p) + "\n");
-//			}
-//		}
-//		sb.append("\n");
-//		if (chains != null) {
-//			sb.append(info);
-//			for (Chain c : chains) {
-//				sb.append("\n" + c);
-//			}
-//		}
-//		Log.d(TAG, sb.toString());
-//	}
+	// private void LogState(String info, List<Chain> chains) {
+	// StringBuffer sb = new StringBuffer();
+	// // if (chains == null) {
+	// // sb.append("Player state (" + info + "): \nPromising Chains: ");
+	// // for (Chain c : promisingChains) {
+	// // sb.append("\n" + c);
+	// // }
+	// // sb.append("\nOponent chains: ");
+	// // for (Chain c : oponentChains) {
+	// // sb.append("\n" + c);
+	// // }
+	// // sb.append("\n\n");
+	// // } else
+	// sb.append("Pointvals:\n");
+	// for (Point p : vpoints.keySet()) {
+	// if (vpoints.get(p) > 5) {
+	// sb.append(p + " => " + vpoints.get(p) + "\n");
+	// }
+	// }
+	// sb.append("\n");
+	// if (chains != null) {
+	// sb.append(info);
+	// for (Chain c : chains) {
+	// sb.append("\n" + c);
+	// }
+	// }
+	// Log.d(TAG, sb.toString());
+	// }
 
-//	private Random rand = new Random();
-//	private static Comparator<Chain> chainComparator = new ChainComparator();
-//	private TreeSet<Chain> promisingChains = new TreeSet<Chain>(chainComparator);
-//	private TreeSet<Chain> oponentChains = new TreeSet<Chain>(chainComparator);
-//	private HashMap<Point, Integer> vpoints = new HashMap<Point, Integer>();
-//	private HashMap<Point, List<Chain>> crossings = new HashMap<Point, List<Chain>>();
+	// private Random rand = new Random();
+	// private static Comparator<Chain> chainComparator = new ChainComparator();
+	// private TreeSet<Chain> promisingChains = new
+	// TreeSet<Chain>(chainComparator);
+	// private TreeSet<Chain> oponentChains = new
+	// TreeSet<Chain>(chainComparator);
+	// private HashMap<Point, Integer> vpoints = new HashMap<Point, Integer>();
+	// private HashMap<Point, List<Chain>> crossings = new HashMap<Point,
+	// List<Chain>>();
 
 	// @Override
 	// public Point turnChange(Board b) {
@@ -231,28 +236,36 @@ public class AiPlayer implements IPlayer {
 	// return toBlock;
 	// }
 
-	@Override
-	public XO getXO() {
-		// TODO Auto-generated method stub
-		return null;
+	public AiPlayer(Parcel in) {
+		super(XO.parse(in.readInt()));
 	}
 
 	@Override
 	public void notifyOponentMove(Point p) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void notifyMoveWaiting() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setGameInterface(IGameInterface i) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(xo.intValue());
 	}
 
 	// @Override
@@ -284,4 +297,13 @@ public class AiPlayer implements IPlayer {
 	// LogState("After Oponent's move");
 	// }
 
+	public static final Parcelable.Creator<AiPlayer> CREATOR = new Parcelable.Creator<AiPlayer>() {
+		public AiPlayer createFromParcel(Parcel in) {
+			return new AiPlayer(in);
+		}
+
+		public AiPlayer[] newArray(int size) {
+			return new AiPlayer[size];
+		}
+	};
 }

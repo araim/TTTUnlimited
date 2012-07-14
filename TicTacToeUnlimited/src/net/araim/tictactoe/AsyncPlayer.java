@@ -4,6 +4,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import android.graphics.Point;
+import android.os.Parcel;
 
 class AsyncPlayer implements IPlayer {
 	private final IPlayer plr;
@@ -49,4 +50,17 @@ class AsyncPlayer implements IPlayer {
 		});
 	}
 
+	IPlayer getPlayer(){
+		return plr;
+	}
+	
+	@Override
+	public int describeContents() {
+		return plr.describeContents();
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		plr.writeToParcel(dest, flags);
+	}
 }

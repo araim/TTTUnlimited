@@ -11,8 +11,8 @@ import android.util.Log;
 public final class GameController implements IGameController {
 	private static final String TAG = "TTT.GameController";
 	private final Game game;
-	private final IPlayer player1;
-	private final IPlayer player2;
+	private final AsyncPlayer player1;
+	private final AsyncPlayer player2;
 	private final List<IGameObserver> observers = new ArrayList<IGameObserver>();
 	private static Executor eventExecutor;
 	static {
@@ -171,6 +171,18 @@ public final class GameController implements IGameController {
 		if (p1.getXO() == p2.getXO()) {
 			throw new IllegalArgumentException("Player cannot have the same XO");
 		}
+	}
+
+	public Game getGame() {
+		return game;
+	}
+
+	public IPlayer getPlayer1() {
+		return player1.getPlayer();
+	}
+
+	public IPlayer getPlayer2() {
+		return player2.getPlayer();
 	}
 
 }
