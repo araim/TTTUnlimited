@@ -1,9 +1,12 @@
 package net.araim.tictactoe.structures;
 
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import junit.framework.Assert;
 import net.araim.tictactoe.testutils.TestParcelable;
+import android.graphics.Point;
 import android.test.AndroidTestCase;
 
 public class SparseArray2DTest extends AndroidTestCase {
@@ -152,5 +155,79 @@ public class SparseArray2DTest extends AndroidTestCase {
 		Assert.assertEquals(0, board.getRange(1, 0, 1, 0).size());
 		Assert.assertEquals(0, board.getRange(1, 0, 1, 1).size());
 		Assert.assertEquals(0, board.getRange(1, 1, 1, 0).size());
+	}
+
+	public void testgetEmptyCut() {
+		SparseArray2D<TestParcelable> board = new SparseArray2D<TestParcelable>();
+		Assert.assertEquals(0, board.getCut(new Point(-100, -100), new Point(100, 100)).size());
+	}
+
+	public void testgetCutThrowsExceptionIfNullPoints() {
+		SparseArray2D<TestParcelable> board = new SparseArray2D<TestParcelable>();
+		try {
+			Assert.assertEquals(0, board.getCut(null, new Point(100, 100)).size());
+			fail();
+		} catch (IllegalArgumentException iae) {
+
+		}
+	}
+
+	public void testgetCutThrowsExceptionIfMaxPointSmallerThanMinPoint() {
+		SparseArray2D<TestParcelable> board = new SparseArray2D<TestParcelable>();
+		try {
+			Assert.assertEquals(0, board.getCut(new Point(101, 10), new Point(100, 100)));
+			fail();
+		} catch (IllegalArgumentException iae) {
+
+		}
+	}
+
+	public void testgetCut() {
+		SparseArray2D<TestParcelable> board = new SparseArray2D<TestParcelable>();
+		board.put(new TestParcelable("TESTVALUE01"), 0, 1);
+		board.put(new TestParcelable("TESTVALUE10"), 1, 0);
+		board.put(new TestParcelable("TESTVALUE11"), 1, 1);
+		board.put(new TestParcelable("TESTVALUE12"), 1, 2);
+		board.put(new TestParcelable("TESTVALUE21"), 2, 1);
+		Set<AugmentedPoint<TestParcelable>> set = board.getCut(new Point(0, 0), new Point(1, 1));
+		Assert.assertEquals(3, set.size());
+		Assert.assertEquals(true, set.contains(new AugmentedPoint<TestParcelable>(new Point(0, 1), new TestParcelable("TESTVALUE01"))));
+		Assert.assertEquals(true, set.contains(new AugmentedPoint<TestParcelable>(new Point(1, 0), new TestParcelable("TESTVALUE10"))));
+		Assert.assertEquals(true, set.contains(new AugmentedPoint<TestParcelable>(new Point(1, 1), new TestParcelable("TESTVALUE11"))));
+	}
+
+	public void testgetCutAsMapThrowsExceptionIfNullPoints() {
+		SparseArray2D<TestParcelable> board = new SparseArray2D<TestParcelable>();
+		try {
+			Assert.assertEquals(0, board.getCutAsMap(null, new Point(100, 100)).size());
+			fail();
+		} catch (IllegalArgumentException iae) {
+
+		}
+	}
+
+	public void testgetCutAsMapThrowsExceptionIfMaxPointSmallerThanMinPoint() {
+		SparseArray2D<TestParcelable> board = new SparseArray2D<TestParcelable>();
+		try {
+			Assert.assertEquals(0, board.getCutAsMap(new Point(101, 10), new Point(100, 100)));
+			fail();
+		} catch (IllegalArgumentException iae) {
+
+		}
+	}
+
+	public void testgetCutAsMap() {
+		SparseArray2D<TestParcelable> board = new SparseArray2D<TestParcelable>();
+		board.put(new TestParcelable("TESTVALUE01"), 0, 1);
+		board.put(new TestParcelable("TESTVALUE10"), 1, 0);
+		board.put(new TestParcelable("TESTVALUE11"), 1, 1);
+		board.put(new TestParcelable("TESTVALUE12"), 1, 2);
+		board.put(new TestParcelable("TESTVALUE21"), 2, 1);
+		Map<Point, TestParcelable> set = board.getCutAsMap(new Point(0, 0), new Point(1, 1));
+		Assert.assertEquals(3, set.size());
+		Assert.assertEquals(true, set.get(new Point(0, 1)).equals(new TestParcelable("TESTVALUE01")));
+		Assert.assertEquals(true, set.get(new Point(1, 0)).equals(new TestParcelable("TESTVALUE10")));
+		Assert.assertEquals(true, set.get(new Point(1, 1)).equals(new TestParcelable("TESTVALUE11")));
+
 	}
 }

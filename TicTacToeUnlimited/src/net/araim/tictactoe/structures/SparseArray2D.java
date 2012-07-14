@@ -2,7 +2,11 @@ package net.araim.tictactoe.structures;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import android.graphics.Point;
 import android.os.Parcel;
@@ -75,6 +79,52 @@ public final class SparseArray2D<T extends Serializable> implements Parcelable {
 			p = new Point(x, y);
 			value = val;
 		}
+	}
+
+	public Set<AugmentedPoint<T>> getCut(Point min, Point max) {
+		Set<AugmentedPoint<T>> set = new HashSet<AugmentedPoint<T>>();
+		if (min == null || max == null || min.x > max.x || min.y > max.y) {
+			throw new IllegalArgumentException(String.format("invalid arguments for get Cut %s,%s", min, max));
+		}
+		SparseArray<T> temp;
+		synchronized (map) {
+			for (int i = min.x; i <= max.x; i++) {
+				temp = map.get(shift + i);
+				if (temp != null) {
+					for (int j = min.y; j <= max.y; j++) {
+						T t = temp.get(shift + j);
+						if (t != null) {
+							set.add(new AugmentedPoint<T>(new Point(i, j), t));
+						}
+					}
+				}
+			}
+			return set;
+		}
+
+	}
+
+	public Map<Point, T> getCutAsMap(Point min, Point max) {
+		Map<Point, T> rmap = new HashMap<Point, T>();
+		if (min == null || max == null || min.x > max.x || min.y > max.y) {
+			throw new IllegalArgumentException(String.format("invalid arguments for get Cut %s,%s", min, max));
+		}
+		SparseArray<T> temp;
+		synchronized (map) {
+			for (int i = min.x; i <= max.x; i++) {
+				temp = map.get(shift + i);
+				if (temp != null) {
+					for (int j = min.y; j <= max.y; j++) {
+						T t = temp.get(shift + j);
+						if (t != null) {
+							rmap.put(new Point(i, j), t);
+						}
+					}
+				}
+			}
+			return rmap;
+		}
+
 	}
 
 	/**

@@ -7,5 +7,6 @@ public class Settings {
 	public static int confirmationTime = 3;
 	public static boolean requiresConfirmation = true;
 	public static XO startingPlayer = XO.X;
+	public static int cacheOffset = 10;
 
 }
