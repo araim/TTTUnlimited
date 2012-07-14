@@ -211,13 +211,13 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 		Point maxPoint = getPointByCoords(rightmost, top);
 
 		if (boardCut == null || (minPoint.x < lastMin.x || minPoint.y < lastMin.y) || (maxPoint.x > lastMax.x || maxPoint.y > lastMax.y)) {
-			Log.d(TAG, String.format("Board cache miss: (%s,%s), cached: (%s,%s)", minPoint, maxPoint, lastMin, lastMax));
+			Log.v(TAG, String.format("Board cache miss: (%s,%s), cached: (%s,%s)", minPoint, maxPoint, lastMin, lastMax));
 			lastMin = new Point(minPoint.x - Settings.cacheOffset, minPoint.y - Settings.cacheOffset);
 			lastMax = new Point(maxPoint.x + Settings.cacheOffset, maxPoint.y + Settings.cacheOffset);
 			Map<Point, XO> cut = boardDisplay.getCutAsMap(lastMin, lastMax);
 			boardCut = cut;
 		} else {
-			Log.d(TAG, String.format("Board cache hit: %s,%s", minPoint, maxPoint));
+			Log.v(TAG, String.format("Board cache hit: %s,%s", minPoint, maxPoint));
 		}
 
 		// draw XO here if applicable
