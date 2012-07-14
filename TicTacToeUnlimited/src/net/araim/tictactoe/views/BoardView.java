@@ -1,8 +1,16 @@
 package net.araim.tictactoe.views;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import net.araim.tictactoe.IBoardDisplay;
-import net.araim.tictactoe.IMoveObserver;
+import net.araim.tictactoe.IBoardOperationDispatcher;
+import net.araim.tictactoe.IBoardUpdateListener;
+import net.araim.tictactoe.IPlayerView;
 import net.araim.tictactoe.XO;
+import net.araim.tictactoe.configuration.Settings;
+import net.araim.tictactoe.structures.AugmentedPoint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -16,16 +24,65 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-public final class BoardView extends View {
+public final class BoardView extends View implements IPlayerView, IBoardUpdateListener {
 
 	private static final String TAG = "BoardView";
+	private Set<IBoardOperationDispatcher> operationDispatchers = new HashSet<IBoardOperationDispatcher>();
 	private MisclickClearer misclickTask = new MisclickClearer();
 	private Handler handler = new Handler();
-	private IMoveObserver observer;
+	private Point lastMin = new Point(0, 0);
+	private Point lastMax = new Point(0, 0);
+	private Map<Point, XO> boardCut;
+
+	// private Executor executor = Executors.newSingleThreadExecutor();
+
+	public BoardView(Context context) {
+		super(context);
+		boardDisplay = new IBoardDisplay<XO>() {
+
+			@Override
+			public XO get(int x, int y) {
+				return null;
+			}
+
+			@Override
+			public XO get(Point p) {
+				return null;
+			}
+
+			@Override
+			public void addBoardUpdateListener(IBoardUpdateListener lsnr) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void removeBoardUpdateListener(IBoardUpdateListener lsnr) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public java.util.Set<AugmentedPoint<XO>> getCut(Point min, Point max) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Map<Point, XO> getCutAsMap(Point min, Point max) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		};
+		if (!isInEditMode()) {
+			throw new IllegalStateException("This constructor should only be used in edit mode by automated tools");
+		}
+	}
 
 	public BoardView(Context context, IBoardDisplay<XO> display) {
 		super(context);
 		boardDisplay = display;
+		boardDisplay.addBoardUpdateListener(this);
 	}
 
 	private final IBoardDisplay<XO> boardDisplay;
@@ -36,7 +93,7 @@ public final class BoardView extends View {
 	private static int minPxSize = 30;
 	private int cellSize = minPxSize;
 	private boolean any = false;
-	private boolean debugMode = true;
+	private boolean debugMode = false;
 
 	private float zoom = 1;
 	private int xoffset = -20;
@@ -57,9 +114,6 @@ public final class BoardView extends View {
 
 	private float touchX = 0f;
 	private float touchY = 0f;
-
-	private int xsize;
-	private int ysize;
 
 	private int xnum;
 	private int ynum;
@@ -93,12 +147,12 @@ public final class BoardView extends View {
 
 	public void setZoom(float zoom) {
 		// TODO: zoom animation
-		Log.d(TAG, "ZoomChange: " + this.zoom + " => " + zoom + " xxchg: " + ((xsize * zoom - xsize * this.zoom)) + " yxchg: "
-				+ ((ysize * zoom - ysize * this.zoom)));
-		Point p1 = getCoordsByPoint(0, 0);
+		Log.d(TAG, "ZoomChange: " + this.zoom + " => " + zoom + " xxchg: " + (getWidth() * (zoom - this.zoom)) + " yxchg: "
+				+ (getHeight() * (zoom - this.zoom)));
+		Point p1 = getCoordsByPoint(new Point(0, 0));
 		this.zoom = zoom;
 		calculateSizes();
-		Point p2 = getCoordsByPoint(0, 0);
+		Point p2 = getCoordsByPoint(new Point(0, 0));
 		xoffset -= (p2.x - p1.x);
 		yoffset -= (p2.y - p1.y);
 		reduceMoveX(0);
@@ -107,9 +161,9 @@ public final class BoardView extends View {
 	}
 
 	private void calculateSizes() {
-		this.xsize = this.getWidth();
-		this.ysize = this.getHeight();
-		minPxSize = Math.min(this.xsize, this.ysize) / 10;
+		int xsize = getWidth();
+		int ysize = getHeight();
+		minPxSize = Math.min(xsize, ysize) / 10;
 		minPxSize = minPxSize < 30 ? 30 : minPxSize;
 		this.cellSize = Math.round(minPxSize * zoom);
 		this.xnum = (int) (xsize / cellSize);
@@ -129,53 +183,70 @@ public final class BoardView extends View {
 		super.onDraw(canvas);
 		calculateSizes();
 
-		float[] lines = new float[(xnum + 1) * 4];
+		float[] lines = new float[(xnum + 1) * 4 + (ynum + 1) * 4];
 		xLineOffset = (int) (xoffset % cellSize);
+		yLineOffset = (int) (yoffset % cellSize);
 		for (int i = 0; i <= xnum; i++) {
 			lines[i * 4 + 0] = (float) i * cellSize + xLineOffset;
 			lines[i * 4 + 1] = 0f;
 			lines[i * 4 + 2] = lines[i * 4 + 0];
-			lines[i * 4 + 3] = ysize;
+			lines[i * 4 + 3] = getHeight();
 		}
-
-		canvas.drawLines(lines, BoardViewPaints.BOARD_PAINT);
-
-		lines = new float[(ynum + 1) * 4];
-		yLineOffset = (int) (yoffset % cellSize);
+		int xyArrayOffset = (xnum + 1) * 4;
 		for (int i = 0; i <= ynum; i++) {
-			lines[i * 4 + 0] = 0f;
-			lines[i * 4 + 1] = (float) i * cellSize + yLineOffset;
-			lines[i * 4 + 2] = xsize;
-			lines[i * 4 + 3] = lines[i * 4 + 1];
+			lines[xyArrayOffset + i * 4 + 0] = 0f;
+			lines[xyArrayOffset + i * 4 + 1] = (float) i * cellSize + yLineOffset;
+			lines[xyArrayOffset + i * 4 + 2] = getWidth();
+			lines[xyArrayOffset + i * 4 + 3] = lines[xyArrayOffset + i * 4 + 1];
 		}
-
 		canvas.drawLines(lines, BoardViewPaints.BOARD_PAINT);
 
-		for (int i = -1; i <= xnum + 1; i++) {
-			for (int j = -1; j <= ynum + 1; j++) {
-				int left = (int) (((i - 1)) * cellSize + xLineOffset + 1);
-				int top = (int) (j * cellSize + yLineOffset + 1);
+		int leftmost = (int) ((-2) * cellSize + xLineOffset + 1);
+		int bottom = (int) ((ynum + 1) * cellSize + yLineOffset + 1);
 
-				Point p = getPointByCoords(left, top);
+		int rightmost = (int) (xnum * cellSize + xLineOffset + 1);
+		int top = (int) (-1 * cellSize + yLineOffset + 1);
 
-				// draw XO here if applicable
-				if (tempXO != null && tempPoint.x == p.x && tempPoint.y == p.y) {
-					drawXO(canvas, tempXO, top, left, BoardViewPaints.XO_RED_PAINT);
-				}
+		Point minPoint = getPointByCoords(leftmost, bottom);
+		Point maxPoint = getPointByCoords(rightmost, top);
 
-				XO xo = boardDisplay.get(p);
-				if (xo != null) {
-					drawXO(canvas, xo, top, left, BoardViewPaints.XO_GENERAL_PAINT);
-				}
-				if (debugMode) {
-					canvas.drawText(p.x + "," + p.y, left + 3, top + 15, BoardViewPaints.GENERAL_RED);
+		if (boardCut == null || (minPoint.x < lastMin.x || minPoint.y < lastMin.y) || (maxPoint.x > lastMax.x || maxPoint.y > lastMax.y)) {
+			Log.d(TAG, String.format("Board cache miss: (%s,%s), cached: (%s,%s)", minPoint, maxPoint, lastMin, lastMax));
+			lastMin = new Point(minPoint.x - Settings.cacheOffset, minPoint.y - Settings.cacheOffset);
+			lastMax = new Point(maxPoint.x + Settings.cacheOffset, maxPoint.y + Settings.cacheOffset);
+			Map<Point, XO> cut = boardDisplay.getCutAsMap(lastMin, lastMax);
+			boardCut = cut;
+		} else {
+			Log.d(TAG, String.format("Board cache hit: %s,%s", minPoint, maxPoint));
+		}
+
+		// draw XO here if applicable
+		if (tempXO != null) {
+			Point tempCoords = getCoordsByPoint(tempPoint);
+			drawXO(canvas, tempXO, tempCoords.x, tempCoords.y, BoardViewPaints.XO_RED_PAINT);
+		}
+
+		for (Point p : boardCut.keySet()) {
+			// filter out the outside of view ones (cached)
+			if (p.x >= minPoint.x && p.x <= maxPoint.x && p.y >= minPoint.y && p.y <= maxPoint.y) {
+				Point xoCoords = getCoordsByPoint(p);
+				setBorderItems(xoCoords.x, xoCoords.y);
+				drawXO(canvas, boardCut.get(p), xoCoords.x - cellSize / 2, xoCoords.y - cellSize / 2, BoardViewPaints.XO_GENERAL_PAINT);
+			}
+		}
+		if (debugMode) {
+			for (int i = -1; i <= xnum + 1; i++) {
+				for (int j = -1; j <= ynum + 1; j++) {
+					int l = (int) ((i - 1) * cellSize + xLineOffset + 1);
+					int t = (int) (j * cellSize + yLineOffset + 1);
+					Point p = getPointByCoords(l, t);
+					canvas.drawText(p.x + "," + p.y, l + 3, t + 15, BoardViewPaints.GENERAL_RED);
 				}
 			}
 		}
 	}
 
-	private void drawXO(Canvas canvas, XO xo, int top, int left, Paint paint) {
-
+	private void drawXO(Canvas canvas, XO xo, int left, int top, Paint paint) {
 		if (xo == XO.X) {
 			float[] pts = new float[] { left + padsize, top + padsize, left + padsize + xosize, top + padsize + xosize,
 					left + xosize + padsize, top + padsize, left + padsize, top + padsize + xosize };
@@ -185,30 +256,35 @@ public final class BoardView extends View {
 		}
 	}
 
-	private Point getCoordsByPoint(int x, int y) {
-		Point p = new Point();
+	/**
+	 * Return the bottom right coordinates of a given cell
+	 * 
+	 * @param p cell numbers (row,col)
+	 * @return Point containing bottom right coordinates of a cell specified in
+	 *         input
+	 */
+	private Point getCoordsByPoint(Point p) {
 		// 0,0 is normaly centered: width/2, height/2,all we need is an offset
 		// and element nuber..
-		y = -y;
-		p.set((int) ((Math.floor((xnum / 2))) * cellSize + (cellSize / 2) + xoffset + (x * cellSize) + 1),
-				(int) Math.ceil(((ynum / 2) * cellSize + (cellSize / 2) + yoffset + (y * cellSize)) + 1));
-		return p;
+		int xBase = (int) Math.floor(xnum / 2) * cellSize + (cellSize / 2) + xoffset + 1;
+		int yBase = (int) Math.ceil(ynum / 2) * cellSize + (cellSize / 2) + yoffset + 1;
+
+		return new Point(xBase + (p.x * cellSize), yBase - (p.y * cellSize));
 	}
 
 	private Point getPointByCoords(int x, int y) {
-		Point p = new Point();
 
 		int xoff = 0;
 		int yoff = 0;
+		// mirror zero
 		if (x - xoffset < 0) {
 			xoff = -1;
 		}
 		if (y - yoffset < 0) {
 			yoff = -1;
 		}
-		p.set((int) Math.ceil(((x - xoffset) / cellSize) + xoff - xnum / 2),
-				-1 * (int) Math.floor(((y - yoffset) / cellSize) + yoff - ynum / 2));
-		return p;
+		return new Point((int) Math.ceil(((x - xoffset) / cellSize) + xoff - xnum / 2), -1
+				* (int) Math.floor(((y - yoffset) / cellSize) + yoff - ynum / 2));
 	}
 
 	@Override
@@ -225,8 +301,8 @@ public final class BoardView extends View {
 				int newDist = (int) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 				// if the previous movement of 2 fingers was registered
 				if (dist != 0) {
-					Log.d(TAG, "zoom+ " + ((float) newDist - (float) dist) / (float) xsize);
-					setZoom(zoom + ((float) newDist - (float) dist) / (float) xsize);
+					Log.d(TAG, "zoom+ " + ((float) newDist - (float) dist) / (float) getWidth());
+					setZoom(zoom + ((float) newDist - (float) dist) / (float) getWidth());
 				}
 				// register new distance between fingers
 				dist = newDist;
@@ -244,7 +320,7 @@ public final class BoardView extends View {
 				if (!isMoving && !locked && touchX == event.getX() && touchY == event.getY()) {
 					dist = 0;
 					Point p = getPointByCoords((int) event.getX(), (int) event.getY());
-					clickBoard(p.x, p.y);
+					clickBoard(p);
 				} else if (isMoving) {
 					isMoving = false;
 				}
@@ -269,6 +345,7 @@ public final class BoardView extends View {
 
 	private int reduceMoveY(int yoff) {
 		if (any) {
+			int ysize = getHeight();
 			if (yoff < 0 && yoffset + yoff <= -((ysize / 2 + ((maxY - 1.5f) * cellSize)))) {
 				return (int) -(ysize / 2 + ((maxY - 1.5f) * cellSize) + yoffset);
 			} else if (yoff > 0 && yoffset + yoff >= (ysize / 2 - ((minY + 2.5f) * cellSize))) {
@@ -280,6 +357,7 @@ public final class BoardView extends View {
 
 	private int reduceMoveX(int xoff) {
 		if (any) {
+			int xsize = getWidth();
 			if (xoff < 0 && xoffset + xoff <= -((xsize / 2 + ((maxX - 1.5f) * cellSize)))) {
 				return (int) -(xsize / 2 + ((maxX - 1.5f) * cellSize) + xoffset);
 			} else if (xoff > 0 && xoffset + xoff >= (xsize / 2 - ((minX + 2f) * cellSize))) {
@@ -290,7 +368,6 @@ public final class BoardView extends View {
 	}
 
 	private synchronized void clearTemp() {
-		// getBoard().put(null, tempPoint.x, tempPoint.y);
 		tempPoint = null;
 		tempXO = null;
 	}
@@ -310,7 +387,6 @@ public final class BoardView extends View {
 			invalidate();
 		}
 		if (!temp) {
-			setBorderItems(x, y);
 			any = true;
 		}
 		XO xo = boardDisplay.get(x, y);
@@ -332,7 +408,6 @@ public final class BoardView extends View {
 	}
 
 	private class MisclickClearer implements Runnable {
-
 		@Override
 		public void run() {
 			clearTemp();
@@ -342,26 +417,21 @@ public final class BoardView extends View {
 
 	}
 
-	private void clickBoard(int x, int y) {
-		Log.d(TAG, "BoardClicked: (" + x + "," + y + ")");
-		if (observer != null) {
-			// observer.moveMade(new Point(x, y));
+	private void clickBoard(final Point p) {
+		Log.d(TAG, String.format("BoardClicked: (x:%d, y:%d)", p.x, p.y));
+		boardCut = null;
+		for (final IBoardOperationDispatcher dsp : operationDispatchers) {
+			if (dsp.dispatchMove(p)) {
+				return;
+			}
 		}
 	}
 
 	private void setBorderItems(int x, int y) {
-		if (x < this.minX) {
-			this.minX = x;
-		}
-		if (x > this.maxX) {
-			this.maxX = x;
-		}
-		if (y < this.minY) {
-			this.minY = y;
-		}
-		if (y > this.maxY) {
-			this.maxY = y;
-		}
+		minX = Math.min(x, minX);
+		minY = Math.min(y, minY);
+		maxX = Math.max(x, maxX);
+		maxY = Math.max(y, maxY);
 	}
 
 	public void setLocked(boolean locked) {
@@ -370,5 +440,21 @@ public final class BoardView extends View {
 
 	public boolean isLocked() {
 		return locked;
+	}
+
+	@Override
+	public void addOperationListemer(IBoardOperationDispatcher lsnr) {
+		operationDispatchers.add(lsnr);
+	}
+
+	@Override
+	public boolean removeOperationListemer(IBoardOperationDispatcher lsnr) {
+		return operationDispatchers.remove(lsnr);
+	}
+
+	@Override
+	public void updateBoard() {
+		Log.d(TAG, "Board Update requested...");
+		invalidate();
 	}
 }
