@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 
 public final class BoardView extends View implements IPlayerView, IBoardUpdateListener {
 
@@ -88,7 +89,7 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 	private final IBoardDisplay<XO> boardDisplay;
 
 	private Point tempPoint = null;
-	private XO tempXO = null;
+	private boolean temp = false;
 
 	private static int minPxSize = 30;
 	private int cellSize = minPxSize;
@@ -137,7 +138,10 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 			XO_GENERAL_PAINT.setStyle(Style.STROKE);
 
 			XO_RED_PAINT = new Paint(BOARD_PAINT);
+			XO_RED_PAINT.setStyle(Style.STROKE);
 			XO_RED_PAINT.setColor(Color.RED);
+			XO_RED_PAINT.setAntiAlias(true);
+			XO_RED_PAINT.setStrokeWidth(2.5f);
 		}
 	}
 
@@ -221,9 +225,11 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 		}
 
 		// draw XO here if applicable
-		if (tempXO != null) {
+		if (temp) {
 			Point tempCoords = getCoordsByPoint(tempPoint);
-			drawXO(canvas, tempXO, tempCoords.x, tempCoords.y, BoardViewPaints.XO_RED_PAINT);
+			canvas.drawCircle(tempCoords.x, tempCoords.y, cellSize / 5, BoardViewPaints.XO_RED_PAINT);
+			canvas.drawCircle(tempCoords.x, tempCoords.y, cellSize / 3, BoardViewPaints.XO_RED_PAINT);
+			canvas.drawCircle(tempCoords.x, tempCoords.y, 1, BoardViewPaints.XO_RED_PAINT);
 		}
 
 		for (Point p : boardCut.keySet()) {
@@ -257,11 +263,10 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 	}
 
 	/**
-	 * Return the bottom right coordinates of a given cell
+	 * Return the center coordinates of a given cell
 	 * 
 	 * @param p cell numbers (row,col)
-	 * @return Point containing bottom right coordinates of a cell specified in
-	 *         input
+	 * @return Point containing center of a cell specified in input
 	 */
 	private Point getCoordsByPoint(Point p) {
 		// 0,0 is normaly centered: width/2, height/2,all we need is an offset
@@ -320,7 +325,10 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 				if (!isMoving && !locked && touchX == event.getX() && touchY == event.getY()) {
 					dist = 0;
 					Point p = getPointByCoords((int) event.getX(), (int) event.getY());
-					clickBoard(p);
+					if (!Settings.misclickPrevention || handleMisclickPrevention(p)) {
+						clickBoard(p);
+					}
+					invalidate();
 				} else if (isMoving) {
 					isMoving = false;
 				}
@@ -341,6 +349,29 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 			}
 		}
 		return true;
+	}
+
+	private synchronized boolean handleMisclickPrevention(Point p) {
+		handler.removeCallbacks(misclickTask);
+		// second click in the same temp
+		if (temp && tempPoint.x == p.x && tempPoint.y == p.y) {
+			temp = false;
+			return true;
+		}
+		XO xo = boardDisplay.get(p.x, p.y);
+		if (xo == null) {
+			tempPoint = new Point(p.x, p.y);
+			setTempShader(p);
+			temp = true;
+			handler.postDelayed(misclickTask, Settings.misclickPreventionTimer);
+		}
+		return false;
+	}
+
+	private void setTempShader(Point p) {
+		Point tempCoords = getCoordsByPoint(p);
+		BoardViewPaints.XO_RED_PAINT.setShader(new RadialGradient(tempCoords.x, tempCoords.y, cellSize/2, Color.rgb(250, 0, 0), Color.rgb(90,
+				0, 0), Shader.TileMode.CLAMP));
 	}
 
 	private int reduceMoveY(int yoff) {
@@ -367,50 +398,10 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 		return xoff;
 	}
 
-	private synchronized void clearTemp() {
-		tempPoint = null;
-		tempXO = null;
-	}
-
-	public synchronized boolean Set(int x, int y, XO who, boolean temp, int timeoutMsec) {
-
-		Log.d(TAG, " Set(" + x + " , " + y + ", " + who + ", " + temp + ", " + timeoutMsec + " )");
-		handler.removeCallbacks(misclickTask);
-		// second click in the same temp
-		if (tempXO != null && tempPoint.x == x && tempPoint.y == y) {
-			temp = false;
-			clearTemp();
-		}
-		// first click in temp or new temp
-		if (temp && tempXO != null) {
-			clearTemp();
-			invalidate();
-		}
-		if (!temp) {
-			any = true;
-		}
-		XO xo = boardDisplay.get(x, y);
-		if (xo == null) {
-			if (temp) {
-				tempPoint = new Point(x, y);
-				tempXO = who;
-				handler.postDelayed(misclickTask, timeoutMsec);
-				Log.d(TAG, "timer scheduled in " + timeoutMsec + " msecs");
-			} else {
-				// getBoard().put(who, x, y);
-			}
-
-			invalidate();
-			return !temp;
-		} else {
-			return false;
-		}
-	}
-
 	private class MisclickClearer implements Runnable {
 		@Override
 		public void run() {
-			clearTemp();
+			temp = false;
 			invalidate();
 			Log.d(TAG, "Clearing temp");
 		}

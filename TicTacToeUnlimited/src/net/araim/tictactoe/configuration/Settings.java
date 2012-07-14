@@ -8,5 +8,7 @@ public class Settings {
 	public static boolean requiresConfirmation = true;
 	public static XO startingPlayer = XO.X;
 	public static int cacheOffset = 10;
+	public static boolean misclickPrevention = true;
+	public static int misclickPreventionTimer = 1000;
 
 }
