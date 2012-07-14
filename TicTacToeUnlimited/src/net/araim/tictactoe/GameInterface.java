@@ -16,4 +16,9 @@ public class GameInterface implements IGameInterface {
 	public void requestMove(Point p) throws IllegalMoveException {
 		ctrl.requestMove(p, plr);
 	}
+
+	@Override
+	public XO getCurrentPlayer() {
+		return ctrl.getCurrentPlayer();
+	}
 }

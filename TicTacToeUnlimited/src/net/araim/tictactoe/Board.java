@@ -1,5 +1,10 @@
 package net.araim.tictactoe;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import net.araim.tictactoe.structures.AugmentedPoint;
 import net.araim.tictactoe.structures.SparseArray2D;
 import android.graphics.Point;
 import android.os.Parcel;
@@ -7,6 +12,8 @@ import android.os.Parcelable;
 
 public final class Board implements IBoard<XO> {
 	SparseArray2D<XO> board = new SparseArray2D<XO>();
+	Set<IBoardUpdateListener> lsnrs = new HashSet<IBoardUpdateListener>();
+
 	private int elementCount = 0;
 
 	public boolean isEmpty(int x, int y) {
@@ -26,6 +33,9 @@ public final class Board implements IBoard<XO> {
 			elementCount++;
 		}
 		board.put(xo, x, y);
+		for (IBoardUpdateListener lsnr : lsnrs) {
+			lsnr.updateBoard();
+		}
 	}
 
 	@Override
@@ -65,6 +75,26 @@ public final class Board implements IBoard<XO> {
 	@Override
 	public int getElementCount() {
 		return elementCount;
+	}
+
+	@Override
+	public void addBoardUpdateListener(IBoardUpdateListener lsnr) {
+		lsnrs.add(lsnr);
+	}
+
+	@Override
+	public void removeBoardUpdateListener(IBoardUpdateListener lsnr) {
+		lsnrs.remove(lsnr);
+	}
+
+	@Override
+	public Set<AugmentedPoint<XO>> getCut(Point min, Point max) {
+		return board.getCut(min, max);
+	}
+
+	@Override
+	public Map<Point, XO> getCutAsMap(Point min, Point max) {
+		return board.getCutAsMap(min, max);
 	}
 
 }

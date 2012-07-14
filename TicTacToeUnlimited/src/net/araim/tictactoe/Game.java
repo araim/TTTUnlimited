@@ -4,13 +4,15 @@ import net.araim.tictactoe.configuration.Settings;
 import android.graphics.Point;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 public class Game implements Parcelable {
-
+	private static final String TAG = "TTT.Game";
 	private final Board board;
 	private volatile XO currentPlayer;
 	private volatile boolean won;
 	private volatile XO wonBy;
+	private Object o = new Object();
 
 	public Game() {
 		board = new Board();
@@ -38,15 +40,22 @@ public class Game implements Parcelable {
 	}
 
 	public void switchPlayers() {
-		currentPlayer = XO.complementary(currentPlayer);
+		synchronized (o) {
+			Log.i(TAG, String.format("Switch players requested. From: %s ", currentPlayer));
+			currentPlayer = XO.complementary(currentPlayer);
+		}
 	}
 
-	public synchronized void mark(int x, int y) {
-		if (!won) {
-			board.put(currentPlayer, x, y);
-			won = checkWinning(new Point(x, y));
-			if (won) {
-				wonBy = currentPlayer;
+	public void mark(int x, int y) {
+		synchronized (o) {
+			Log.i(TAG, String.format("Request to mark point (%d,%d) for player %s", x, y, currentPlayer));
+			if (!won) {
+				board.put(currentPlayer, x, y);
+				won = checkWinning(new Point(x, y));
+				if (won) {
+					Log.i(TAG, String.format("Game won as a result of move (%d,%d) by player %s", x, y, currentPlayer));
+					wonBy = currentPlayer;
+				}
 			}
 		}
 
