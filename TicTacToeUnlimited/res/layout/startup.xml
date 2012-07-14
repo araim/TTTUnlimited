@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/Startup_imageLogo"
+        android:layout_width="fill_parent"
+        android:layout_height="380dp"
+        android:contentDescription="@string/tic_tac_toe_unlimited_logo"
+        android:src="@android:drawable/progress_indeterminate_horizontal" />
+
+    <Button
+        android:id="@+id/Startup_StartGameButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Startup_imageLogo"
+        android:text="@string/new_game" />
+
+</RelativeLayout>
