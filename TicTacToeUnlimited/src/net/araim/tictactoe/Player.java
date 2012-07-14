@@ -1,7 +1,7 @@
 package net.araim.tictactoe;
 
 public abstract class Player implements IPlayer {
-	private final XO xo;
+	protected final XO xo;
 
 	public Player(XO x) {
 		if (x == null) {
