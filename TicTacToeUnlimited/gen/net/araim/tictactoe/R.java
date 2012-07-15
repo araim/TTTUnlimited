@@ -58,20 +58,22 @@ containing a value of this type.
     }
     public static final class id {
         public static final int MainLayout=0x7f050001;
+        public static final int Startup_ConfigurationButton=0x7f050005;
         public static final int Startup_StartGameButton=0x7f050004;
         public static final int Startup_imageLogo=0x7f050003;
         public static final int ad=0x7f050000;
         public static final int zoomPlus=0x7f050002;
     }
     public static final class layout {
-        public static final int main=0x7f030000;
-        public static final int startup=0x7f030001;
+        public static final int configuration=0x7f030000;
+        public static final int main=0x7f030001;
+        public static final int startup=0x7f030002;
     }
     public static final class string {
         public static final int app_name=0x7f040000;
-        public static final int new_game=0x7f040003;
-        public static final int tic_tac_toe_unlimited_logo=0x7f040002;
-        public static final int zoomButtonDescription=0x7f040001;
+        public static final int configuration=0x7f040003;
+        public static final int new_game=0x7f040002;
+        public static final int tic_tac_toe_unlimited_logo=0x7f040001;
     }
     public static final class styleable {
         /** Attributes that can be used with a com_admob_android_ads_AdView.

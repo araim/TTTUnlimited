@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-public class TicaTacToeStartup extends Activity {
+public class TicTacToeStartup extends Activity {
 	private static final String TAG = "TicTacToeStartup";
 
 	@Override
@@ -21,11 +21,18 @@ public class TicaTacToeStartup extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				Intent i = new Intent(TicaTacToeStartup.this, TicTacToeGame.class);
+				Intent i = new Intent(TicTacToeStartup.this, TicTacToeGame.class);
 				startActivity(i);
 			}
 		});
+		findViewById(R.id.Startup_ConfigurationButton).setOnClickListener(new OnClickListener() {
 
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(TicTacToeStartup.this, TicTacToeConfiguration.class);
+				startActivity(i);
+			}
+		});
 	}
 
 	@Override

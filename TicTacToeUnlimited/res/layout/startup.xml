@@ -17,5 +17,13 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/Startup_imageLogo"
         android:text="@string/new_game" />
+ 
+    <Button
+        android:id="@+id/Startup_ConfigurationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Startup_imageLogo"
+        android:layout_centerHorizontal="true"
+        android:text="@string/configuration" />
 
 </RelativeLayout>

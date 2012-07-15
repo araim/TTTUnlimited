@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">Tic Tac Toe Unlimited</string>
-    <string name="zoomButtonDescription">Zoom button</string>
     <string name="tic_tac_toe_unlimited_logo">Tic Tac Toe Unlimited logo</string>
     <string name="new_game">New game</string>
+    <string name="configuration">Configuration</string>
 
 </resources>
