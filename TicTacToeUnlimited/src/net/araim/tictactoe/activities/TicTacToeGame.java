@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.RelativeLayout;
+import android.widget.ZoomControls;
 
 public class TicTacToeGame extends Activity {
 
@@ -62,11 +63,20 @@ public class TicTacToeGame extends Activity {
 		}
 
 		((RelativeLayout) findViewById(R.id.MainLayout)).addView(bv);
-		findViewById(R.id.zoomPlus).setOnClickListener(new OnClickListener() {
+
+		ZoomControls zc = (ZoomControls) findViewById(R.id.zoomPlus);
+		zc.setOnZoomInClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Log.d(TAG, "zoomclicked");
 				bv.setZoom(bv.getZoom() + 0.1f);
+			}
+		});
+		zc.setOnZoomOutClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.d(TAG, "zoomclicked");
+				bv.setZoom(bv.getZoom() - 0.1f);
 			}
 		});
 		findViewById(R.id.zoomPlus).bringToFront();
