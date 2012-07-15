@@ -11,8 +11,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public final class Board implements IBoard<XO> {
-	SparseArray2D<XO> board = new SparseArray2D<XO>();
-	Set<IBoardUpdateListener> lsnrs = new HashSet<IBoardUpdateListener>();
+	private SparseArray2D<XO> board = new SparseArray2D<XO>();
+	private Set<IBoardUpdateListener> lsnrs = new HashSet<IBoardUpdateListener>();
+	private boolean locked;
 
 	private int elementCount = 0;
 
@@ -95,6 +96,16 @@ public final class Board implements IBoard<XO> {
 	@Override
 	public Map<Point, XO> getCutAsMap(Point min, Point max) {
 		return board.getCutAsMap(min, max);
+	}
+
+	@Override
+	public boolean isLocked() {
+		return locked;
+	}
+
+	@Override
+	public void setLocked(boolean lock) {
+		locked = lock;		
 	}
 
 }

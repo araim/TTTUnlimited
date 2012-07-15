@@ -55,6 +55,7 @@ public class Game implements Parcelable {
 				if (won) {
 					Log.i(TAG, String.format("Game won as a result of move (%d,%d) by player %s", x, y, currentPlayer));
 					wonBy = currentPlayer;
+					board.setLocked(true);
 				}
 			}
 		}

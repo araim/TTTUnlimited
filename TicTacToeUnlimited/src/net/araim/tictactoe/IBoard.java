@@ -8,4 +8,5 @@ public interface IBoard<T extends Serializable> extends IBoardDisplay<T>, Parcel
 	boolean isEmpty(int x, int y);
 	void put(T xo, int x, int y);
 	int getElementCount();
+	void setLocked(boolean lock);
 }

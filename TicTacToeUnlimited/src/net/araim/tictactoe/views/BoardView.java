@@ -23,7 +23,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
 
 public final class BoardView extends View implements IPlayerView, IBoardUpdateListener {
 
@@ -74,6 +73,11 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 				// TODO Auto-generated method stub
 				return null;
 			}
+
+			@Override
+			public boolean isLocked() {
+				return false;
+			}
 		};
 		if (!isInEditMode()) {
 			throw new IllegalStateException("This constructor should only be used in edit mode by automated tools");
@@ -111,7 +115,6 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 	private int maxY = Integer.MIN_VALUE;
 
 	private boolean isMoving = false;
-	private boolean locked = false;
 
 	private float touchX = 0f;
 	private float touchY = 0f;
@@ -322,7 +325,7 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 				// locked and checking if this is not the end of multitouch (if
 				// it is, original touch points won't be the same as the current
 				// ones)
-				if (!isMoving && !locked && touchX == event.getX() && touchY == event.getY()) {
+				if (!isMoving && !boardDisplay.isLocked() && touchX == event.getX() && touchY == event.getY()) {
 					dist = 0;
 					Point p = getPointByCoords((int) event.getX(), (int) event.getY());
 					if (!Settings.misclickPrevention || handleMisclickPrevention(p)) {
@@ -370,8 +373,8 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 
 	private void setTempShader(Point p) {
 		Point tempCoords = getCoordsByPoint(p);
-		BoardViewPaints.XO_RED_PAINT.setShader(new RadialGradient(tempCoords.x, tempCoords.y, cellSize/2, Color.rgb(250, 0, 0), Color.rgb(90,
-				0, 0), Shader.TileMode.CLAMP));
+		BoardViewPaints.XO_RED_PAINT.setShader(new RadialGradient(tempCoords.x, tempCoords.y, cellSize / 2, Color.rgb(250, 0, 0), Color
+				.rgb(90, 0, 0), Shader.TileMode.CLAMP));
 	}
 
 	private int reduceMoveY(int yoff) {
@@ -423,14 +426,6 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 		minY = Math.min(y, minY);
 		maxX = Math.max(x, maxX);
 		maxY = Math.max(y, maxY);
-	}
-
-	public void setLocked(boolean locked) {
-		this.locked = locked;
-	}
-
-	public boolean isLocked() {
-		return locked;
 	}
 
 	@Override

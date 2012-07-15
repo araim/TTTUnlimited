@@ -19,4 +19,6 @@ public interface IBoardDisplay<T extends Serializable> {
 	void addBoardUpdateListener(IBoardUpdateListener lsnr);
 
 	void removeBoardUpdateListener(IBoardUpdateListener lsnr);
+	
+	boolean isLocked();
 }
