@@ -7,4 +7,9 @@
 		<attr name="keywords" format="string" />
 		<attr name="refreshInterval" format="integer" />
 	</declare-styleable>
+	
+	<string name="Preferences_Gameplay_Category_Key">Gameplay</string>
+	<string name="Preferences_Gameplay_MisclickPreventionEnabled_Key">MisclickPreventionEnabled</string>
+	<string name="Preferences_Gameplay_MisclickTimer_Key">MisclickTime</string>
+	<string name="Preferences_Gameplay_StartingPlayer_Key">StratingPlayer</string>
 </resources>

@@ -16,7 +16,7 @@ public class Game implements Parcelable {
 
 	public Game() {
 		board = new Board();
-		setCurrentPlayer(net.araim.tictactoe.configuration.Settings.startingPlayer);
+		setCurrentPlayer(XO.getPlayer(Settings.startingPlayer));
 	}
 
 	public XO getWonBy() {

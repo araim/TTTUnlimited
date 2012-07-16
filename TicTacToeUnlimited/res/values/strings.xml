@@ -5,5 +5,13 @@
     <string name="tic_tac_toe_unlimited_logo">Tic Tac Toe Unlimited logo</string>
     <string name="new_game">New game</string>
     <string name="configuration">Configuration</string>
-
+    
+    <string name="pref_gameplay">Gameplay Preferences</string>
+    <string name="pref_gameplay_misclick_title">Misclick Prevention</string>
+    <string name="pref_gameplay_misclick_summary">Tapping once marks the spot on the board, but to actually check the spot you need to confirm by tapping again</string>
+    <string name="pref_gameplay_misclick_timer_title">Misclick Prevention timer</string>
+    <string name="pref_gameplay_misclick_timer_summary">How long will the initial spot be marked once tapped</string>
+    <string name="pref_gameplay_starting_player_title">Player starting the game</string>
+        
+    
 </resources>

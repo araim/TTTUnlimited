@@ -1,9 +1,11 @@
 package net.araim.tictactoe.activities;
 
 import net.araim.tictactoe.R;
+import net.araim.tictactoe.configuration.Settings;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,6 +18,8 @@ public class TicTacToeStartup extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "TicTacToeStartup activity creating");
 		setContentView(R.layout.startup);
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+		Settings.synchronize(this);
 
 		findViewById(R.id.Startup_StartGameButton).setOnClickListener(new OnClickListener() {
 

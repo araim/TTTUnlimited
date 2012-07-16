@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:key="@string/Preferences_Gameplay_Category_Key"
+        android:title="@string/pref_gameplay" >
+        <CheckBoxPreference
+            android:key="@string/Preferences_Gameplay_MisclickPreventionEnabled_Key"
+            android:summary="@string/pref_gameplay_misclick_summary"
+            android:title="@string/pref_gameplay_misclick_title"
+            android:defaultValue="true" />
+
+        <ListPreference
+            android:dependency="@string/Preferences_Gameplay_MisclickPreventionEnabled_Key"
+            android:entries="@array/misclickTimersEntries"
+            android:entryValues="@array/misclickTimersEntryValues"
+            android:key="@string/Preferences_Gameplay_MisclickTimer_Key"
+            android:summary="@string/pref_gameplay_misclick_timer_summary"
+            android:title="@string/pref_gameplay_misclick_timer_title" 
+            android:defaultValue="3000"/>
+        <ListPreference
+            android:entries="@array/startingPlayersEntries"
+            android:entryValues="@array/startingPlayersEntryValues"
+            android:key="@string/Preferences_Gameplay_StartingPlayer_Key"
+            android:title="@string/pref_gameplay_starting_player_title" 
+            android:defaultValue="0">
+        </ListPreference>
+    </PreferenceCategory>
+
+</PreferenceScreen>

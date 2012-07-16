@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <string-array name="misclickTimersEntries">
+        <item name="1 second">1 second</item>
+        <item name="2 seconds">2 seconds</item>
+        <item name="3 seconds">3 seconds</item>
+        <item name="5 seconds">5 seconds</item>
+        <item name="Indefinetly">Indefinetly</item>
+    </string-array>
+
+    <string-array name="misclickTimersEntryValues">
+        <item name="1 second">1000</item>
+        <item name="2 seconds">2000</item>
+        <item name="3 seconds">3000</item>
+        <item name="5 seconds">5000</item>
+        <item name="Indefinetly">0</item>
+    </string-array>
+
+    <string-array name="startingPlayersEntries">
+        <item name="X">X</item>
+        <item name="O">O</item>
+        <item name="Random">Random</item>
+    </string-array>
+
+    <string-array name="startingPlayersEntryValues">
+        <item name="X">0</item>
+        <item name="O">1</item>
+        <item name="Random">2</item>
+    </string-array>
+
+</resources>

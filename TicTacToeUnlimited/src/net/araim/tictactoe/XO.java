@@ -1,6 +1,7 @@
 package net.araim.tictactoe;
 
 import java.security.InvalidParameterException;
+import java.util.Random;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -52,5 +53,19 @@ public enum XO implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeInt(intval);
+	}
+
+	/**
+	 * Returns parsed enum if in range or random enum value if outside of the range
+	 * @param startingPlayer int value of requested enum
+	 * @return one of the enum values X/O
+	 */
+	public static XO getPlayer(int startingPlayer) {
+		if (startingPlayer == 0 || startingPlayer == 1) {
+			return XO.parse(startingPlayer);
+		} else {
+			Random r = new Random();
+			return XO.parse(r.nextInt(2));
+		}
 	}
 }

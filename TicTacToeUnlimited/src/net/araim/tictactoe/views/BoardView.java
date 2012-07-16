@@ -366,7 +366,9 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 			tempPoint = new Point(p.x, p.y);
 			setTempShader(p);
 			temp = true;
-			handler.postDelayed(misclickTask, Settings.misclickPreventionTimer);
+			if (Settings.misclickPreventionTimer != 0) {
+				handler.postDelayed(misclickTask, Settings.misclickPreventionTimer);
+			}
 		}
 		return false;
 	}
