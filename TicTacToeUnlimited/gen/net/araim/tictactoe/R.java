@@ -8,11 +8,14 @@
 package net.araim.tictactoe;
 
 public final class R {
+    public static final class anim {
+        public static final int fadein=0x7f040000;
+    }
     public static final class array {
-        public static final int misclickTimersEntries=0x7f060000;
-        public static final int misclickTimersEntryValues=0x7f060001;
-        public static final int startingPlayersEntries=0x7f060002;
-        public static final int startingPlayersEntryValues=0x7f060003;
+        public static final int misclickTimersEntries=0x7f070000;
+        public static final int misclickTimersEntryValues=0x7f070001;
+        public static final int startingPlayersEntries=0x7f070002;
+        public static final int startingPlayersEntryValues=0x7f070003;
     }
     public static final class attr {
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -63,35 +66,42 @@ containing a value of this type.
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int MainLayout=0x7f070001;
-        public static final int Startup_ConfigurationButton=0x7f070005;
-        public static final int Startup_StartGameButton=0x7f070004;
-        public static final int Startup_imageLogo=0x7f070003;
-        public static final int ad=0x7f070000;
-        public static final int zoomPlus=0x7f070002;
+        public static final int MainLayout=0x7f080001;
+        public static final int Startup_ConfigurationButton=0x7f080006;
+        public static final int Startup_StartGameButton=0x7f080005;
+        public static final int Startup_imageLogo=0x7f080004;
+        public static final int ad=0x7f080000;
+        public static final int gameOptionsButton=0x7f080003;
+        public static final int zoomControls=0x7f080002;
     }
     public static final class layout {
-        public static final int main=0x7f030000;
-        public static final int startup=0x7f030001;
+        public static final int ingamemenu=0x7f030000;
+        public static final int main=0x7f030001;
+        public static final int startup=0x7f030002;
     }
     public static final class string {
-        public static final int Preferences_Gameplay_Category_Key=0x7f050000;
-        public static final int Preferences_Gameplay_MisclickPreventionEnabled_Key=0x7f050001;
-        public static final int Preferences_Gameplay_MisclickTimer_Key=0x7f050002;
-        public static final int Preferences_Gameplay_StartingPlayer_Key=0x7f050003;
-        public static final int app_name=0x7f050004;
-        public static final int configuration=0x7f050007;
-        public static final int new_game=0x7f050006;
-        public static final int pref_gameplay=0x7f050008;
-        public static final int pref_gameplay_misclick_summary=0x7f05000a;
-        public static final int pref_gameplay_misclick_timer_summary=0x7f05000c;
-        public static final int pref_gameplay_misclick_timer_title=0x7f05000b;
-        public static final int pref_gameplay_misclick_title=0x7f050009;
-        public static final int pref_gameplay_starting_player_title=0x7f05000d;
-        public static final int tic_tac_toe_unlimited_logo=0x7f050005;
+        public static final int Preferences_Gameplay_Category_Key=0x7f060000;
+        public static final int Preferences_Gameplay_MisclickPreventionEnabled_Key=0x7f060001;
+        public static final int Preferences_Gameplay_MisclickTimer_Key=0x7f060002;
+        public static final int Preferences_Gameplay_StartingPlayer_Key=0x7f060003;
+        public static final int abandon_game=0x7f060010;
+        public static final int app_name=0x7f060004;
+        public static final int configuration=0x7f060007;
+        public static final int game_options_button=0x7f06000e;
+        public static final int new_game=0x7f060006;
+        public static final int pref_gameplay=0x7f060008;
+        public static final int pref_gameplay_misclick_summary=0x7f06000a;
+        public static final int pref_gameplay_misclick_timer_summary=0x7f06000c;
+        public static final int pref_gameplay_misclick_timer_title=0x7f06000b;
+        public static final int pref_gameplay_misclick_title=0x7f060009;
+        public static final int pref_gameplay_starting_player_title=0x7f06000d;
+        public static final int quit_game=0x7f060011;
+        public static final int resume_game=0x7f060012;
+        public static final int save_game=0x7f06000f;
+        public static final int tic_tac_toe_unlimited_logo=0x7f060005;
     }
     public static final class xml {
-        public static final int preferences=0x7f040000;
+        public static final int preferences=0x7f050000;
     }
     public static final class styleable {
         /** Attributes that can be used with a com_admob_android_ads_AdView.

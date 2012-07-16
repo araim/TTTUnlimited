@@ -148,16 +148,11 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 		}
 	}
 
-	public float getZoom() {
-		return zoom;
-	}
-
-	public void setZoom(float zoom) {
-		// TODO: zoom animation
-		Log.d(TAG, "ZoomChange: " + this.zoom + " => " + zoom + " xxchg: " + (getWidth() * (zoom - this.zoom)) + " yxchg: "
-				+ (getHeight() * (zoom - this.zoom)));
+	public synchronized void adjustZoom(float factor) {
+		Log.d(TAG, "ZoomChange: " + this.zoom + " => " + (zoom + factor) + " xxchg: " + (getWidth() * factor) + " yxchg: "
+				+ (getHeight() * factor));
+		this.zoom += factor;
 		Point p1 = getCoordsByPoint(new Point(0, 0));
-		this.zoom = zoom;
 		calculateSizes();
 		Point p2 = getCoordsByPoint(new Point(0, 0));
 		xoffset -= (p2.x - p1.x);
@@ -310,7 +305,7 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 				// if the previous movement of 2 fingers was registered
 				if (dist != 0) {
 					Log.d(TAG, "zoom+ " + ((float) newDist - (float) dist) / (float) getWidth());
-					setZoom(zoom + ((float) newDist - (float) dist) / (float) getWidth());
+					adjustZoom(((float) newDist - (float) dist) / (float) getWidth());
 				}
 				// register new distance between fingers
 				dist = newDist;

@@ -12,6 +12,11 @@
     <string name="pref_gameplay_misclick_timer_title">Misclick Prevention timer</string>
     <string name="pref_gameplay_misclick_timer_summary">How long will the initial spot be marked once tapped</string>
     <string name="pref_gameplay_starting_player_title">Player starting the game</string>
+    <string name="game_options_button">Game options button</string>
+    <string name="save_game">Save</string>
+    <string name="abandon_game">Abandon Game</string>
+    <string name="quit_game">Quit</string>
+    <string name="resume_game">Resume</string>
         
     
 </resources>

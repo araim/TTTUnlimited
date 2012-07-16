@@ -10,18 +10,23 @@ import net.araim.tictactoe.XO;
 import net.araim.tictactoe.utils.Consts;
 import net.araim.tictactoe.views.BoardView;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 import android.widget.ZoomControls;
 
 public class TicTacToeGame extends Activity {
 
 	private static final String TAG = "TicTacToeMain";
+	private volatile View menu = null;
 	private BoardView bv;
 	private GameController gc;
 
@@ -30,6 +35,7 @@ public class TicTacToeGame extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+
 		setContentView(R.layout.main);
 		IPlayer p1 = null;
 		IPlayer p2 = null;
@@ -62,24 +68,29 @@ public class TicTacToeGame extends Activity {
 			gc.start();
 		}
 
-		((RelativeLayout) findViewById(R.id.MainLayout)).addView(bv);
+		final RelativeLayout mainLayout = ((RelativeLayout) findViewById(R.id.MainLayout));
+		mainLayout.addView(bv);
 
-		ZoomControls zc = (ZoomControls) findViewById(R.id.zoomPlus);
-		zc.setOnZoomInClickListener(new OnClickListener() {
+		ZoomControls zc = (ZoomControls) findViewById(R.id.zoomControls);
+		zc.setOnZoomInClickListener(new ZoomController(0.1f));
+		zc.setOnZoomOutClickListener(new ZoomController(-0.1f));
+
+		View optionsButton = findViewById(R.id.gameOptionsButton);
+		optionsButton.setOnClickListener(new OnClickListener() {
+
 			@Override
-			public void onClick(View v) {
-				Log.d(TAG, "zoomclicked");
-				bv.setZoom(bv.getZoom() + 0.1f);
+			public synchronized void onClick(View v) {
+				if (menu == null) {
+					LayoutInflater inflater = (LayoutInflater) TicTacToeGame.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					menu = inflater.inflate(R.layout.ingamemenu, null);
+					mainLayout.addView(menu);
+				}
+				Animation fadeInAnimation = AnimationUtils.loadAnimation(TicTacToeGame.this, R.anim.fadein);
+				menu.startAnimation(fadeInAnimation);
 			}
 		});
-		zc.setOnZoomOutClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Log.d(TAG, "zoomclicked");
-				bv.setZoom(bv.getZoom() - 0.1f);
-			}
-		});
-		findViewById(R.id.zoomPlus).bringToFront();
+		optionsButton.bringToFront();
+		zc.bringToFront();
 	}
 
 	@Override
@@ -95,4 +106,19 @@ public class TicTacToeGame extends Activity {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	private class ZoomController implements OnClickListener {
+		private final float zoomFactor;
+
+		public ZoomController(float factor) {
+			zoomFactor = factor;
+		}
+		
+		@Override
+		public void onClick(View v) {
+			Log.d(TAG, String.format("Zoom Clicked, zooming %f",zoomFactor));
+			if(bv != null){
+				bv.adjustZoom(zoomFactor);
+			}
+		}
+	}
 }
