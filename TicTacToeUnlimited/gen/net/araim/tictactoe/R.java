@@ -67,16 +67,18 @@ containing a value of this type.
     }
     public static final class id {
         public static final int MainLayout=0x7f080001;
-        public static final int Startup_ConfigurationButton=0x7f080006;
-        public static final int Startup_StartGameButton=0x7f080005;
-        public static final int Startup_imageLogo=0x7f080004;
+        public static final int Startup_ConfigurationButton=0x7f080008;
+        public static final int Startup_StartGameButton=0x7f080007;
+        public static final int Startup_imageLogo=0x7f080006;
         public static final int ad=0x7f080000;
         public static final int gameOptionsButton=0x7f080003;
+        public static final int inGameMenu=0x7f080005;
+        public static final int inGameMenuStub=0x7f080004;
         public static final int zoomControls=0x7f080002;
     }
     public static final class layout {
-        public static final int ingamemenu=0x7f030000;
-        public static final int main=0x7f030001;
+        public static final int game=0x7f030000;
+        public static final int ingamemenu=0x7f030001;
         public static final int startup=0x7f030002;
     }
     public static final class string {

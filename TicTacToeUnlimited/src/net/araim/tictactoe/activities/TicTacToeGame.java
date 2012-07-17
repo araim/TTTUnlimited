@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewStub;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -36,7 +37,7 @@ public class TicTacToeGame extends Activity {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		setContentView(R.layout.main);
+		setContentView(R.layout.game);
 		IPlayer p1 = null;
 		IPlayer p2 = null;
 		boolean restore = false;
@@ -81,9 +82,7 @@ public class TicTacToeGame extends Activity {
 			@Override
 			public synchronized void onClick(View v) {
 				if (menu == null) {
-					LayoutInflater inflater = (LayoutInflater) TicTacToeGame.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					menu = inflater.inflate(R.layout.ingamemenu, null);
-					mainLayout.addView(menu);
+					createIngameMenu();
 				}
 				Animation fadeInAnimation = AnimationUtils.loadAnimation(TicTacToeGame.this, R.anim.fadein);
 				menu.startAnimation(fadeInAnimation);
@@ -91,6 +90,12 @@ public class TicTacToeGame extends Activity {
 		});
 		optionsButton.bringToFront();
 		zc.bringToFront();
+	}
+
+	private void createIngameMenu() {
+		ViewStub stub = (ViewStub) findViewById(R.id.inGameMenuStub);
+		menu = stub.inflate();
+		menu.bringToFront();
 	}
 
 	@Override
@@ -112,11 +117,11 @@ public class TicTacToeGame extends Activity {
 		public ZoomController(float factor) {
 			zoomFactor = factor;
 		}
-		
+
 		@Override
 		public void onClick(View v) {
-			Log.d(TAG, String.format("Zoom Clicked, zooming %f",zoomFactor));
-			if(bv != null){
+			Log.d(TAG, String.format("Zoom Clicked, zooming %f", zoomFactor));
+			if (bv != null) {
 				bv.adjustZoom(zoomFactor);
 			}
 		}

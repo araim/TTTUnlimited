@@ -31,7 +31,6 @@
             android:layout_alignParentRight="true"
             android:layout_marginBottom="20sp"
             android:layout_marginRight="20sp" >
-
         </ZoomControls>
 
         <ImageButton
@@ -44,6 +43,16 @@
             android:contentDescription="@string/game_options_button"
             android:src="@android:drawable/ic_menu_more" />
 
+        <ViewStub
+            android:id="@+id/inGameMenuStub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/gameOptionsButton"
+            android:layout_toRightOf="@id/gameOptionsButton"
+            android:inflatedId="@+id/inGameMenu"
+            android:paddingBottom="50dp"
+            android:paddingLeft="-20dp"
+            android:layout="@layout/ingamemenu" />
     </RelativeLayout>
 
 </LinearLayout>
