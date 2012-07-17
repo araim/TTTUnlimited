@@ -15,8 +15,10 @@
     <string name="game_options_button">Game options button</string>
     <string name="save_game">Save</string>
     <string name="abandon_game">Abandon Game</string>
-    <string name="quit_game">Quit</string>
     <string name="resume_game">Resume</string>
+    <string name="abandon_game_confirm">Are you sure you want to abandon the game?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
         
     
 </resources>

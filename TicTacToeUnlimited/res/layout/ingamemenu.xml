@@ -8,23 +8,21 @@
     android:orientation="vertical" >
 
     <Button
+        android:id="@+id/InGameMenu_Resume"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/resume_game" />
 
     <Button
+        android:id="@+id/InGameMenu_Save"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/save_game" />
 
     <Button
+        android:id="@+id/InGameMenu_Abandon"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/abandon_game" />
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/quit_game" />
 
 </LinearLayout>

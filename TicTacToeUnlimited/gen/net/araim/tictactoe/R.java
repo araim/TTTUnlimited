@@ -66,10 +66,13 @@ containing a value of this type.
         public static final int icon=0x7f020000;
     }
     public static final class id {
+        public static final int InGameMenu_Abandon=0x7f080008;
+        public static final int InGameMenu_Resume=0x7f080006;
+        public static final int InGameMenu_Save=0x7f080007;
         public static final int MainLayout=0x7f080001;
-        public static final int Startup_ConfigurationButton=0x7f080008;
-        public static final int Startup_StartGameButton=0x7f080007;
-        public static final int Startup_imageLogo=0x7f080006;
+        public static final int Startup_ConfigurationButton=0x7f08000b;
+        public static final int Startup_StartGameButton=0x7f08000a;
+        public static final int Startup_imageLogo=0x7f080009;
         public static final int ad=0x7f080000;
         public static final int gameOptionsButton=0x7f080003;
         public static final int inGameMenu=0x7f080005;
@@ -87,20 +90,22 @@ containing a value of this type.
         public static final int Preferences_Gameplay_MisclickTimer_Key=0x7f060002;
         public static final int Preferences_Gameplay_StartingPlayer_Key=0x7f060003;
         public static final int abandon_game=0x7f060010;
+        public static final int abandon_game_confirm=0x7f060012;
         public static final int app_name=0x7f060004;
         public static final int configuration=0x7f060007;
         public static final int game_options_button=0x7f06000e;
         public static final int new_game=0x7f060006;
+        public static final int no=0x7f060014;
         public static final int pref_gameplay=0x7f060008;
         public static final int pref_gameplay_misclick_summary=0x7f06000a;
         public static final int pref_gameplay_misclick_timer_summary=0x7f06000c;
         public static final int pref_gameplay_misclick_timer_title=0x7f06000b;
         public static final int pref_gameplay_misclick_title=0x7f060009;
         public static final int pref_gameplay_starting_player_title=0x7f06000d;
-        public static final int quit_game=0x7f060011;
-        public static final int resume_game=0x7f060012;
+        public static final int resume_game=0x7f060011;
         public static final int save_game=0x7f06000f;
         public static final int tic_tac_toe_unlimited_logo=0x7f060005;
+        public static final int yes=0x7f060013;
     }
     public static final class xml {
         public static final int preferences=0x7f050000;

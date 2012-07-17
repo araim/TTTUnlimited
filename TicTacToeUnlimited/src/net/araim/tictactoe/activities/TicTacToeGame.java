@@ -10,11 +10,11 @@ import net.araim.tictactoe.XO;
 import net.araim.tictactoe.utils.Consts;
 import net.araim.tictactoe.views.BoardView;
 import android.app.Activity;
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewStub;
@@ -30,6 +30,7 @@ public class TicTacToeGame extends Activity {
 	private volatile View menu = null;
 	private BoardView bv;
 	private GameController gc;
+	private Object menuLock = new Object();
 
 	/** Called when the activity is first created. */
 	@Override
@@ -80,12 +81,14 @@ public class TicTacToeGame extends Activity {
 		optionsButton.setOnClickListener(new OnClickListener() {
 
 			@Override
-			public synchronized void onClick(View v) {
-				if (menu == null) {
-					createIngameMenu();
+			public void onClick(View v) {
+				synchronized (menuLock) {
+					if (menu == null) {
+						createIngameMenu();
+					}
+					Animation fadeInAnimation = AnimationUtils.loadAnimation(TicTacToeGame.this, R.anim.fadein);
+					menu.startAnimation(fadeInAnimation);
 				}
-				Animation fadeInAnimation = AnimationUtils.loadAnimation(TicTacToeGame.this, R.anim.fadein);
-				menu.startAnimation(fadeInAnimation);
 			}
 		});
 		optionsButton.bringToFront();
@@ -96,6 +99,29 @@ public class TicTacToeGame extends Activity {
 		ViewStub stub = (ViewStub) findViewById(R.id.inGameMenuStub);
 		menu = stub.inflate();
 		menu.bringToFront();
+		menu.findViewById(R.id.InGameMenu_Resume).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				synchronized (menuLock) {
+					menu.clearAnimation();
+					menu.setVisibility(View.GONE);
+				}
+			}
+		});
+		menu.findViewById(R.id.InGameMenu_Abandon).setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(TicTacToeGame.this);
+				builder.setMessage(R.string.abandon_game_confirm).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+					}
+				}).setNegativeButton(R.string.no, null).show();
+			}
+		});
 	}
 
 	@Override
