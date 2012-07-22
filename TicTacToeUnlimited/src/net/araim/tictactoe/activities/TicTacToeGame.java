@@ -74,8 +74,8 @@ public class TicTacToeGame extends Activity {
 		mainLayout.addView(bv);
 
 		ZoomControls zc = (ZoomControls) findViewById(R.id.zoomControls);
-		zc.setOnZoomInClickListener(new ZoomController(0.1f));
-		zc.setOnZoomOutClickListener(new ZoomController(-0.1f));
+		zc.setOnZoomInClickListener(new ZoomController(1.15f));
+		zc.setOnZoomOutClickListener(new ZoomController(1 / 1.15f));
 
 		View optionsButton = findViewById(R.id.gameOptionsButton);
 		optionsButton.setOnClickListener(new OnClickListener() {
@@ -88,6 +88,7 @@ public class TicTacToeGame extends Activity {
 					}
 					Animation fadeInAnimation = AnimationUtils.loadAnimation(TicTacToeGame.this, R.anim.fadein);
 					menu.startAnimation(fadeInAnimation);
+					menu.setVisibility(View.VISIBLE);
 				}
 			}
 		});
@@ -148,7 +149,7 @@ public class TicTacToeGame extends Activity {
 		public void onClick(View v) {
 			Log.d(TAG, String.format("Zoom Clicked, zooming %f", zoomFactor));
 			if (bv != null) {
-				bv.adjustZoom(zoomFactor);
+				bv.adjustZoom(zoomFactor, false);
 			}
 		}
 	}

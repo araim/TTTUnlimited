@@ -8,10 +8,12 @@ import android.preference.PreferenceManager;
 public class Settings {
 	public static int winSize = 5;
 	public static int cacheOffset = 10;
-
+	public static int zoomAnimationTime = 250;
+	
 	public static volatile int startingPlayer = 0;
 	public static volatile boolean misclickPrevention = true;
 	public static volatile int misclickPreventionTimer = 3000;
+	
 
 	public static void synchronize(Context ctx) {
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(ctx);

@@ -48,11 +48,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@id/gameOptionsButton"
-            android:layout_toRightOf="@id/gameOptionsButton"
+            android:layout_alignLeft="@id/gameOptionsButton"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="25dp"
             android:inflatedId="@+id/inGameMenu"
-            android:paddingBottom="50dp"
-            android:paddingLeft="-20dp"
             android:layout="@layout/ingamemenu" />
+
     </RelativeLayout>
 
 </LinearLayout>
