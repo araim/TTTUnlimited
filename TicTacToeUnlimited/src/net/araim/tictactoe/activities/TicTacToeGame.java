@@ -74,8 +74,8 @@ public class TicTacToeGame extends Activity {
 		mainLayout.addView(bv);
 
 		ZoomControls zc = (ZoomControls) findViewById(R.id.zoomControls);
-		zc.setOnZoomInClickListener(new ZoomController(1.15f));
-		zc.setOnZoomOutClickListener(new ZoomController(1 / 1.15f));
+		zc.setOnZoomInClickListener(new ZoomController(1.4f));
+		zc.setOnZoomOutClickListener(new ZoomController(1 / 1.4f));
 
 		View optionsButton = findViewById(R.id.gameOptionsButton);
 		optionsButton.setOnClickListener(new OnClickListener() {

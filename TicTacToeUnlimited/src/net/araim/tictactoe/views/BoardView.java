@@ -17,6 +17,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Point;
+import android.graphics.RadialGradient;
+import android.graphics.Shader;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,6 +31,10 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 	private Map<Point, XO> boardCut;
 	private ZoomState zs = new ZoomState(1f);
 	private Object zoomStateGuard = new Object();
+	private MisclickClearer misclickTask = new MisclickClearer();
+	private Handler handler = new Handler();
+	private Point tempPoint = null;
+	private boolean temp = false;
 
 	private int initialPxCellSize = 90;
 	private int currentPxCellSize = 90;
@@ -117,9 +124,11 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 
 	private int pxTouchX = 0;
 	private int pxTouchY = 0;
-	private int pxXMoveOffset = 0;
-	private int pxYMoveOffset = 0;
+	private double cellXMoveOffset;
+	private double cellYMoveOffset;
 	private float xoSizeFactor = 0.6f;
+	private double dist = 0f;
+	private boolean isMoving = false;
 
 	private Point cutMin = new Point(0, 0);
 	private Point cutMax = new Point(0, 0);
@@ -129,27 +138,32 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 		// 1,1 is towards right and bottom
 		// both sides of 0 (-1,0] and [0,1) are rounded to 0. To help with that
 		// we substract one cell from negative ones
-		int pxXCellStart = x - pxXMoveOffset;
-		if (pxXCellStart < 0) {
-			pxXCellStart -= currentPxCellSize;
+		double xCell = (((double) x / currentPxCellSize) - cellXMoveOffset);
+		double yCell = (((double) y / currentPxCellSize) - cellYMoveOffset);
+		if (xCell < 0) {
+			xCell -= 1f;
 		}
-		int pxYCellStart = y - pxYMoveOffset;
-		if (pxYCellStart < 0) {
-			pxYCellStart -= currentPxCellSize;
+		if (yCell < 0) {
+			yCell -= 1f;
 		}
-		return new Point(pxXCellStart / currentPxCellSize, pxYCellStart / currentPxCellSize);
+		return new Point((int) xCell, (int) yCell);
+
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		double currentZoom = zs.getCurrent();
-		if (zoom != currentZoom) {
-			Log.d(TAG, String.format("pxXMoveOff:%d, currnetZ:%f, zoom:%f", pxXMoveOffset, currentZoom, zoom));
-			pxXMoveOffset = (int) Math.round(pxXMoveOffset * (currentZoom / zoom));
-			pxXMoveOffset -= (int) Math.round((getWidth() / 2 * (currentZoom - zoom)));
-			pxYMoveOffset = (int) Math.round(pxYMoveOffset * (currentZoom / zoom));
-			pxYMoveOffset -= (int) Math.round((getHeight() / 2 * (currentZoom - zoom)));
+		if (zoom != currentZoom && Math.abs(currentZoom - zoom) > 0.02f) {
+
+			double cellXCountBefore = 1 / (initialPxCellSize * currentZoom);
+			double cellXCountAfter = 1 / (initialPxCellSize * zoom);
+			cellXMoveOffset -= (getWidth() / 2) * (cellXCountAfter - cellXCountBefore);
+
+			double cellYCountBefore = 1 / (initialPxCellSize * currentZoom);
+			double cellYCountAfter = 1 / (initialPxCellSize * zoom);
+			cellYMoveOffset -= (getHeight() / 2) * (cellYCountAfter - cellYCountBefore);
+
 			zoom = currentZoom;
 		}
 		currentPxCellSize = (int) (initialPxCellSize * zoom);
@@ -157,8 +171,8 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 		int numberOfVerticals = (getWidth() + currentPxCellSize - 1) / currentPxCellSize;
 		int numberOfHorizontals = (getHeight() + currentPxCellSize - 1) / currentPxCellSize;
 
-		int pxXoffset = pxXMoveOffset % currentPxCellSize;
-		int pxYoffset = pxYMoveOffset % currentPxCellSize;
+		int pxXoffset = ((int) (cellXMoveOffset * currentPxCellSize)) % currentPxCellSize;
+		int pxYoffset = ((int) (cellYMoveOffset * currentPxCellSize)) % currentPxCellSize;
 
 		float[] lines = new float[4 * (numberOfVerticals + 1 + numberOfHorizontals + 1)];
 		Log.d(TAG, String.format("Drawing: %d width, %d verticals", getWidth(), numberOfVerticals));
@@ -210,20 +224,13 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 		drawXO(canvas, XO.X, p.x - currentPxCellSize / 2, p.y - currentPxCellSize / 2, BoardViewPaints.XO_GENERAL_PAINT);
 		drawXO(canvas, XO.X, p2.x - currentPxCellSize / 2, p2.y - currentPxCellSize / 2, BoardViewPaints.XO_GENERAL_PAINT);
 
-		// if (!zs.targetReached()) {
-		// invalidate();
-		// }
-		// if (debugMode) {
-		// for (int i = -1; i <= xnum + 1; i++) {
-		// for (int j = -1; j <= ynum + 1; j++) {
-		// int l = (int) ((i - 1) * cellSize + xLineOffset + 1);
-		// int t = (int) (j * cellSize + yLineOffset + 1);
-		// Point p = getPointByCoords(l, t);
-		// canvas.drawText(p.x + "," + p.y, l + 3, t + 15,
-		// BoardViewPaints.GENERAL_RED);
-		// }
-		// }
-		// }
+		// draw XO here if applicable
+		if (temp) {
+			Point tempCoords = getCoordsByPoint(tempPoint.x, tempPoint.y);
+			canvas.drawCircle(tempCoords.x, tempCoords.y, currentPxCellSize / 5, BoardViewPaints.XO_RED_PAINT);
+			canvas.drawCircle(tempCoords.x, tempCoords.y, currentPxCellSize / 3, BoardViewPaints.XO_RED_PAINT);
+			canvas.drawCircle(tempCoords.x, tempCoords.y, 1, BoardViewPaints.XO_RED_PAINT);
+		}
 		if (!zs.targetReached()) {
 			invalidate();
 		}
@@ -244,8 +251,8 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 
 	private Point getCoordsByPoint(int x, int y) {
 		// center of a cell
-		Point coords = new Point(pxXMoveOffset + x * currentPxCellSize + currentPxCellSize / 2, pxYMoveOffset + y * currentPxCellSize
-				+ currentPxCellSize / 2);
+		Point coords = new Point((int) (cellXMoveOffset * currentPxCellSize) + x * currentPxCellSize + currentPxCellSize / 2,
+				(int) (cellYMoveOffset * currentPxCellSize) + y * currentPxCellSize + currentPxCellSize / 2);
 		Log.d(TAG, String.format("Getcoords for: (%d,%d) => %s ", x, y, coords));
 		return coords;
 	}
@@ -255,61 +262,53 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 		if (!super.onTouchEvent(event)) {
 			// two fingers - this is zoom
 			if (event.getPointerCount() == 2) {
+				isMoving = false;
 				// get the positions
 				int x1 = (int) event.getX(0);
 				int y1 = (int) event.getY(0);
 				int x2 = (int) event.getX(1);
 				int y2 = (int) event.getY(1);
 				// calculate the distance
-				int newDist = (int) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+				double newDist = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 				// if the previous movement of 2 fingers was registered
-				// if (dist != 0) {
-				// Log.d(TAG, "zoom+ " + ((float) newDist - (float) dist) /
-				// (float) getWidth());
-				// adjustZoom(1f + ((float) newDist - (float) dist) / (float)
-				// getWidth(), true);
-				// }
-				// // register new distance between fingers
-				// dist = newDist;
-			}
+				if (dist != 0) {
+					Log.d(TAG, "zoom+ " + ((float) newDist - (float) dist) / (float) getWidth());
+					adjustZoom(1f + ((float) newDist - (float) dist) / (float) getWidth(), true);
+				}
+				// register new distance between fingers
+				dist = newDist;
 
-			else if (event.getAction() == MotionEvent.ACTION_UP) {
+			} else if (event.getAction() == MotionEvent.ACTION_UP) {
 				Log.d(TAG, "Point Clicked: " + getPointByCoords((int) event.getX(), (int) event.getY()));
 
 				// // no more pinching
-				// if (event.getPointerCount() < 2) {
-				// dist = 0;
-				// }
+				if (event.getPointerCount() < 2) {
+					dist = 0f;
+				}
+
 				// this is touch - not move. also checking if the board isn't
 				// locked and checking if this is not the end of multitouch (if
 				// it is, original touch points won't be the same as the current
 				// ones)
-				// if (!isMoving && !boardDisplay.isLocked() && touchX ==
-				// event.getX() && touchY == event.getY()) {
-				// dist = 0;
-				// Point p = getPointByCoords((int) event.getX(), (int)
-				// event.getY());
-				// if (!Settings.misclickPrevention ||
-				// handleMisclickPrevention(p)) {
-				// clickBoard(p);
-				// }
-				// invalidate();
-				// } else if (isMoving) {
-				// isMoving = false;
-				// }
+				if (!isMoving && !boardDisplay.isLocked() && pxTouchX == event.getX() && pxTouchY == event.getY()) {
+					dist = 0;
+					Point p = getPointByCoords((int) event.getX(), (int) event.getY());
+					if (!Settings.misclickPrevention || handleMisclickPrevention(p)) {
+						clickBoard(p);
+					}
+					isMoving = false;
+				}
 			} else if (event.getAction() == MotionEvent.ACTION_DOWN) {
 				pxTouchX = (int) event.getX();
 				pxTouchY = (int) event.getY();
-			} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+				isMoving = true;
+			} else if (event.getAction() == MotionEvent.ACTION_MOVE && isMoving) {
 				int xoff = (int) (event.getX() - pxTouchX);
 				int yoff = (int) (event.getY() - pxTouchY);
 				Log.d(TAG, String.format("Move by %d, %d", xoff, yoff));
-				pxXMoveOffset += xoff;
-				pxYMoveOffset += yoff;
+				cellXMoveOffset += (double) xoff / currentPxCellSize;
+				cellYMoveOffset += (double) yoff / currentPxCellSize;
 
-				// if (Math.abs(xoff) > 6 || Math.abs(yoff) > 6) {
-				// isMoving = true;
-				// }
 				// xoffset += reduceMoveX(xoff);
 				pxTouchX = (int) event.getX();
 				// yoffset += reduceMoveY(yoff);
@@ -318,6 +317,51 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 			}
 		}
 		return true;
+	}
+
+	private synchronized boolean handleMisclickPrevention(Point p) {
+		handler.removeCallbacks(misclickTask);
+		// second click in the same temp
+		if (temp && tempPoint.x == p.x && tempPoint.y == p.y) {
+			temp = false;
+			return true;
+		}
+		XO xo = boardDisplay.get(p.x, p.y);
+		if (xo == null) {
+			tempPoint = new Point(p.x, p.y);
+			setTempShader(p);
+			temp = true;
+			if (Settings.misclickPreventionTimer != 0) {
+				handler.postDelayed(misclickTask, Settings.misclickPreventionTimer);
+			}
+		}
+		return false;
+	}
+
+	private void setTempShader(Point p) {
+		Point tempCoords = getCoordsByPoint(p.x, p.y);
+		BoardViewPaints.XO_RED_PAINT.setShader(new RadialGradient(tempCoords.x, tempCoords.y, currentPxCellSize / 2, Color.rgb(250, 0, 0),
+				Color.rgb(90, 0, 0), Shader.TileMode.CLAMP));
+	}
+
+	private class MisclickClearer implements Runnable {
+		@Override
+		public void run() {
+			temp = false;
+			invalidate();
+			Log.d(TAG, "Clearing temp");
+		}
+
+	}
+
+	private void clickBoard(final Point p) {
+		Log.d(TAG, String.format("BoardClicked: (x:%d, y:%d)", p.x, p.y));
+		boardCut = null;
+		for (final IBoardOperationDispatcher dsp : operationDispatchers) {
+			if (dsp.dispatchMove(p)) {
+				return;
+			}
+		}
 	}
 
 	@Override
@@ -337,7 +381,6 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 	}
 
 	public void adjustZoom(float factor, boolean instant) {
-		Log.d(TAG, "Zoom adjust, xoffset: " + this.pxXMoveOffset);
 		synchronized (zoomStateGuard) {
 			zs.adjustTarget(factor, instant);
 		}
