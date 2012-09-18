@@ -25,8 +25,6 @@ public final class GameController implements IGameController {
 		player1 = new AsyncPlayer(p1);
 		player2 = new AsyncPlayer(p2);
 
-		setupGameInterfaces();
-
 		game = new Game();
 	}
 
@@ -34,14 +32,14 @@ public final class GameController implements IGameController {
 		verifyPlayers(p1, p2);
 		player1 = new AsyncPlayer(p1);
 		player2 = new AsyncPlayer(p2);
-		setupGameInterfaces();
 		if (g == null) {
 			throw new IllegalArgumentException("Null game was assigned to controller");
 		}
 		game = g;
 	}
 
-	private void setupGameInterfaces() {
+	@Override
+	public void setUpGame() {
 		IGameInterface igip1 = new GameInterface(this, player1);
 		player1.setGameInterface(igip1);
 

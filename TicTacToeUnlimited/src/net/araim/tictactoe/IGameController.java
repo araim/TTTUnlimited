@@ -7,6 +7,7 @@ public interface IGameController {
 
 	public IBoardDisplay<XO> getBoardView();
 	public XO getCurrentPlayer();
+	public void setUpGame();
 	
 	public void start();
 }

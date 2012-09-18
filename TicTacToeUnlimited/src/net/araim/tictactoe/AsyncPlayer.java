@@ -50,10 +50,10 @@ class AsyncPlayer implements IPlayer {
 		});
 	}
 
-	IPlayer getPlayer(){
+	IPlayer getPlayer() {
 		return plr;
 	}
-	
+
 	@Override
 	public int describeContents() {
 		return plr.describeContents();
@@ -63,4 +63,10 @@ class AsyncPlayer implements IPlayer {
 	public void writeToParcel(Parcel dest, int flags) {
 		plr.writeToParcel(dest, flags);
 	}
+
+	@Override
+	public String toString() {
+		return "AsyncPlayer [plr=" + plr + "]";
+	}
+
 }

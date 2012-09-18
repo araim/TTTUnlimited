@@ -6,7 +6,6 @@ public class GameInterface implements IGameInterface {
 	private final IPlayer plr;
 	private final IGameController ctrl;
 
-
 	public GameInterface(IGameController control, IPlayer player) {
 		ctrl = control;
 		plr = player;
@@ -20,5 +19,10 @@ public class GameInterface implements IGameInterface {
 	@Override
 	public XO getCurrentPlayer() {
 		return ctrl.getCurrentPlayer();
+	}
+
+	@Override
+	public IBoardDisplay<XO> getCurrentBoardView() {
+		return ctrl.getBoardView();
 	}
 }

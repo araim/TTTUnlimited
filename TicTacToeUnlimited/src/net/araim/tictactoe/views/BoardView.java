@@ -132,6 +132,7 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 
 	private Point cutMin = new Point(0, 0);
 	private Point cutMax = new Point(0, 0);
+	private volatile boolean forceUpdate;
 
 	public Point getPointByCoords(int x, int y) {
 		// 0,0 is left top.
@@ -197,35 +198,47 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 		// + " ; " + top);
 		// Log.w(TAG, "Board:" + this.toString());
 		Point minPoint = getPointByCoords(0, 0);
+		assert minPoint != null;
 		Point maxPoint = getPointByCoords(getWidth(), getHeight());
+		assert maxPoint != null;
 		//
-		if (boardCut == null || (minPoint.x < cutMin.x || minPoint.y < cutMin.y) || (maxPoint.x > cutMax.x || maxPoint.y > cutMax.y)) {
+		if (forceUpdate || boardCut == null || (minPoint.x < cutMin.x || minPoint.y < cutMin.y)
+				|| (maxPoint.x > cutMax.x || maxPoint.y > cutMax.y)) {
 			Log.v(TAG, String.format("Board cache miss: (%s,%s), cached: (%s,%s)", minPoint, maxPoint, cutMin, cutMax));
 			cutMin = new Point(minPoint.x - Settings.cacheOffset, minPoint.y - Settings.cacheOffset);
 			cutMax = new Point(maxPoint.x + Settings.cacheOffset, maxPoint.y + Settings.cacheOffset);
 			Map<Point, XO> cut = boardDisplay.getCutAsMap(cutMin, cutMax);
 			boardCut = cut;
+			forceUpdate = false;
+			assert boardCut != null;
 		} else {
 			Log.v(TAG, String.format("Board cache hit: %s,%s", minPoint, maxPoint));
 		}
 		//
 		for (Point p : boardCut.keySet()) {
+			assert p != null;
 			// filter out the outside of view ones (cached)
 			if (p.x >= minPoint.x && p.x <= maxPoint.x && p.y >= minPoint.y && p.y <= maxPoint.y) {
 				Point xoCoords = getCoordsByPoint(p.x, p.y);
+				assert xoCoords != null;
+				assert canvas != null;
+				assert boardCut != null;
 				drawXO(canvas, boardCut.get(p), xoCoords.x - currentPxCellSize / 2, xoCoords.y - currentPxCellSize / 2,
 						BoardViewPaints.XO_GENERAL_PAINT);
 			}
 		}
 
-		Point p = getCoordsByPoint(4, 4);
-		Point p2 = getCoordsByPoint(12, 12);
-
-		drawXO(canvas, XO.X, p.x - currentPxCellSize / 2, p.y - currentPxCellSize / 2, BoardViewPaints.XO_GENERAL_PAINT);
-		drawXO(canvas, XO.X, p2.x - currentPxCellSize / 2, p2.y - currentPxCellSize / 2, BoardViewPaints.XO_GENERAL_PAINT);
+		// Point p = getCoordsByPoint(4, 4);
+		// Point p2 = getCoordsByPoint(12, 12);
+		//
+		// drawXO(canvas, XO.X, p.x - currentPxCellSize / 2, p.y -
+		// currentPxCellSize / 2, BoardViewPaints.XO_GENERAL_PAINT);
+		// drawXO(canvas, XO.X, p2.x - currentPxCellSize / 2, p2.y -
+		// currentPxCellSize / 2, BoardViewPaints.XO_GENERAL_PAINT);
 
 		// draw XO here if applicable
 		if (temp) {
+			assert tempPoint != null;
 			Point tempCoords = getCoordsByPoint(tempPoint.x, tempPoint.y);
 			canvas.drawCircle(tempCoords.x, tempCoords.y, currentPxCellSize / 5, BoardViewPaints.XO_RED_PAINT);
 			canvas.drawCircle(tempCoords.x, tempCoords.y, currentPxCellSize / 3, BoardViewPaints.XO_RED_PAINT);
@@ -296,22 +309,20 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 					if (!Settings.misclickPrevention || handleMisclickPrevention(p)) {
 						clickBoard(p);
 					}
-					isMoving = false;
 				}
+				isMoving = false;
 			} else if (event.getAction() == MotionEvent.ACTION_DOWN) {
 				pxTouchX = (int) event.getX();
 				pxTouchY = (int) event.getY();
+			} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
 				isMoving = true;
-			} else if (event.getAction() == MotionEvent.ACTION_MOVE && isMoving) {
 				int xoff = (int) (event.getX() - pxTouchX);
 				int yoff = (int) (event.getY() - pxTouchY);
 				Log.d(TAG, String.format("Move by %d, %d", xoff, yoff));
 				cellXMoveOffset += (double) xoff / currentPxCellSize;
 				cellYMoveOffset += (double) yoff / currentPxCellSize;
 
-				// xoffset += reduceMoveX(xoff);
 				pxTouchX = (int) event.getX();
-				// yoffset += reduceMoveY(yoff);
 				pxTouchY = (int) event.getY();
 				invalidate();
 			}
@@ -334,6 +345,7 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 			if (Settings.misclickPreventionTimer != 0) {
 				handler.postDelayed(misclickTask, Settings.misclickPreventionTimer);
 			}
+			invalidate();
 		}
 		return false;
 	}
@@ -356,12 +368,12 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 
 	private void clickBoard(final Point p) {
 		Log.d(TAG, String.format("BoardClicked: (x:%d, y:%d)", p.x, p.y));
-		boardCut = null;
 		for (final IBoardOperationDispatcher dsp : operationDispatchers) {
 			if (dsp.dispatchMove(p)) {
 				return;
 			}
 		}
+		boardCut = null;
 	}
 
 	@Override
@@ -377,7 +389,8 @@ public final class BoardView extends View implements IPlayerView, IBoardUpdateLi
 	@Override
 	public void updateBoard() {
 		Log.d(TAG, "Board Update requested...");
-		invalidate();
+		this.forceUpdate = true;
+		postInvalidate();
 	}
 
 	public void adjustZoom(float factor, boolean instant) {

@@ -43,7 +43,7 @@ public abstract class Chain implements Iterable<Point> {
 		}
 	}
 
-	private static int getChainLength(IBoard<XO> board, Point p, XO xo, int xvector, int yvector) {
+	private static int getChainLength(IBoardDisplay<XO> board, Point p, XO xo, int xvector, int yvector) {
 		int offset = 0;
 		while (board.get(p.x + (offset + 1) * xvector, (offset + 1) * yvector + p.y) == xo) {
 			offset += 1;
@@ -51,23 +51,23 @@ public abstract class Chain implements Iterable<Point> {
 		return offset;
 	}
 
-	private static List<Chain> getColumnChains(IBoard<XO> board, Point p, XO xo, boolean openOnly) {
+	private static List<Chain> getColumnChains(IBoardDisplay<XO> board, Point p, XO xo, boolean openOnly) {
 		return getLineChains(board, p, xo, openOnly, ChainType.COLUMN);
 	}
 
-	private static List<Chain> getRowChains(IBoard<XO> board, Point p, XO xo, boolean openOnly) {
+	private static List<Chain> getRowChains(IBoardDisplay<XO> board, Point p, XO xo, boolean openOnly) {
 		return getLineChains(board, p, xo, openOnly, ChainType.ROW);
 	}
 
-	private static List<Chain> getDiagonalLTBRChains(IBoard<XO> board, Point p, XO xo, boolean openOnly) {
+	private static List<Chain> getDiagonalLTBRChains(IBoardDisplay<XO> board, Point p, XO xo, boolean openOnly) {
 		return getLineChains(board, p, xo, openOnly, ChainType.DIAGONALLTRB);
 	}
 
-	private static List<Chain> getDiagonalLBRTChains(IBoard<XO> board, Point p, XO xo, boolean openOnly) {
+	private static List<Chain> getDiagonalLBRTChains(IBoardDisplay<XO> board, Point p, XO xo, boolean openOnly) {
 		return getLineChains(board, p, xo, openOnly, ChainType.DIAGONALLBRT);
 	}
 
-	private static List<Chain> getLineChains(IBoard<XO> board, Point p, XO xo, boolean openOnly, ChainType type) {
+	private static List<Chain> getLineChains(IBoardDisplay<XO> board, Point p, XO xo, boolean openOnly, ChainType type) {
 		List<Chain> chains = new ArrayList<Chain>();
 
 		Point start = new Point();
@@ -112,7 +112,7 @@ public abstract class Chain implements Iterable<Point> {
 		return chains;
 	}
 
-	private static List<Chain> getSingletonChains(IBoard<XO> board, Point p, XO xo, boolean openOnly) {
+	private static List<Chain> getSingletonChains(IBoardDisplay<XO> board, Point p, XO xo, boolean openOnly) {
 		List<Chain> chains = new ArrayList<Chain>();
 
 		boolean isOpen1 = false;
@@ -134,7 +134,11 @@ public abstract class Chain implements Iterable<Point> {
 		return chains;
 	}
 
-	public static List<Chain> GetChains(IBoard<XO> board, Point p, XO xo, boolean openOnly) {
+	public static Chain GetChain(IBoardDisplay<XO> board, Point p, XO xo) {
+		return new SingletonChain(xo, p, p, new Point[0]);
+	}
+
+	public static List<Chain> GetChains(IBoardDisplay<XO> board, Point p, XO xo, boolean openOnly) {
 
 		List<Chain> chains = new ArrayList<Chain>();
 
@@ -148,7 +152,7 @@ public abstract class Chain implements Iterable<Point> {
 		return chains;
 	}
 
-	public List<Chain> GetChains(IBoard<XO> board, Point p, boolean openOnly) {
+	public List<Chain> GetChains(IBoardDisplay<XO> board, Point p, boolean openOnly) {
 		XO xo = board.get(p.x, p.y);
 		if (xo == null) {
 			return new ArrayList<Chain>();

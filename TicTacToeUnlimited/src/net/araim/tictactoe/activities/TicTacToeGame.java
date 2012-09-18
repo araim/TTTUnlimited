@@ -7,6 +7,7 @@ import net.araim.tictactoe.IPlayer;
 import net.araim.tictactoe.LocalPlayer;
 import net.araim.tictactoe.R;
 import net.araim.tictactoe.XO;
+import net.araim.tictactoe.AI.AiPlayer;
 import net.araim.tictactoe.utils.Consts;
 import net.araim.tictactoe.views.BoardView;
 import android.app.Activity;
@@ -52,9 +53,11 @@ public class TicTacToeGame extends Activity {
 		}
 		if (!restore) {
 			p1 = new LocalPlayer(XO.X);
-			p2 = new LocalPlayer(XO.O);
+			p2 = new AiPlayer(XO.O);
+			// p2 = new LocalPlayer(XO.O);
 			gc = new GameController(p1, p2);
 		}
+		gc.setUpGame();
 		// bind the board view with the game controller view
 		bv = new BoardView(this, gc.getBoardView());
 
