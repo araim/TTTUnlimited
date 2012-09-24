@@ -27,6 +27,10 @@ public class AttachableProxyBoardView implements IBoardDisplay<XO> {
 		attaches.remove(p);
 	}
 
+	public boolean isAttached(Point p) {
+		return attaches.containsKey(p);
+	}
+
 	@Override
 	public XO get(int x, int y) {
 		Point p = new Point(x, y);
